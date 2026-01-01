@@ -8,6 +8,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionIt
 		README.md = README.md
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{BB5BD913-7C42-46AC-9397-39107B47D371}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\azure-static-web-apps-jolly-smoke-0fe290403.yml = .github\workflows\azure-static-web-apps-jolly-smoke-0fe290403.yml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +23,8 @@ Global
 		{DA53FC2B-3024-4A1D-BDFF-D28A4EF2595A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DA53FC2B-3024-4A1D-BDFF-D28A4EF2595A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DA53FC2B-3024-4A1D-BDFF-D28A4EF2595A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{BB5BD913-7C42-46AC-9397-39107B47D371} = {C69EADAA-01F2-42BA-8944-469FF09AFF88}
 	EndGlobalSection
 EndGlobal
