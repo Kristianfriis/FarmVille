@@ -1,0 +1,200 @@
+﻿@page "/Farm/{FarmId:int}"
+@inject FarmService FarmService
+@inject NavigationManager Nav
+
+<div class="game-hud">
+    <div class="hud-left">
+        <div class="stat-pill coins">
+            <span class="icon">💰</span>
+            <span class="value">@Coins.ToString("N0")</span>
+        </div>
+        <div class="stat-pill xp">
+            <span class="icon">⭐</span>
+            <span class="value">@XP.ToString("N0")</span>
+        </div>
+    </div>
+
+    <div class="hud-center">
+        <h2 class="farm-name">Farm #@FarmId</h2>
+    </div>
+
+    <div class="hud-right">
+        <button class="hud-btn save" @onclick="SaveGame" title="Save Game">💾</button>
+        <button class="hud-btn exit" @onclick='() => Nav.NavigateTo("/")' title="Exit to Menu">🏠</button>
+    </div>
+</div>
+<div class="toolbar">
+    <button class="@(CurrentTool == FarmTool.Pointer ? "active" : "")"
+            @onclick="() => ChangeTool(FarmTool.Pointer)">👆 Pointer</button>
+
+    <button class="@(CurrentTool == FarmTool.Plow ? "active" : "")"
+            @onclick="() => ChangeTool(FarmTool.Plow)">🚜 Plow</button>
+
+    <button class="@(CurrentTool == FarmTool.Rake ? "active" : "")"
+            @onclick="() => ChangeTool(FarmTool.Rake)">🧹 Rake (Clear)</button>
+</div>
+<div class="farm-grid" style="grid-template-columns: repeat(5, 80px);">
+    @foreach (var tile in FarmGrid)
+    {
+        <div class="tile @tile.Status.ToString().ToLower() @(MarkSelectedTile(tile))"
+             style="grid-column: @(tile.X + 1); grid-row: @(tile.Y + 1);"
+             @onclick="() => HandleTileClick(tile)">
+            @if (tile.Status == TileStatus.Planted) 
+            {
+                <div class="crop-visual">🌱</div>
+                <div class="tile-tooltip">@tile.GetTimeRemaining()</div>
+            }
+            else if (tile.Status == TileStatus.Ready) 
+            {
+                <div class="crop-visual">@tile.CurrentCrop?.Icon</div>
+            }
+            else if (tile.Status == TileStatus.Withered)
+            {
+                <span>🥀</span>
+            }
+        </div>
+    }
+</div>
+
+<Market Visible="ShowMarket" UserCoins="Coins" OnClose="() => ShowMarket = false" OnCropSelected="PlantCrop" />
+
+@code {
+    [Parameter] public int FarmId { get; set; }
+    
+    private FarmTool CurrentTool = FarmTool.Pointer;
+    private int Coins = 100;
+    private int XP = 0;
+    private bool ShowMarket = false;
+    private FarmTile? SelectedTile;
+    private List<FarmTile> FarmGrid = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if(!await LoadGame()) 
+        {
+            for (int y = 0; y < 5; y++)
+            {
+                for (int x = 0; x < 5; x++)
+                {
+                    FarmGrid.Add(new FarmTile { X = x, Y = y });
+                }
+            }
+        }
+        
+        Console.WriteLine(FarmGrid.Count);
+        
+        StartHeartbeat();
+    }
+
+    private async void StartHeartbeat()
+    {
+        while (true)
+        {
+            foreach (var t in FarmGrid) t.UpdateState();
+            StateHasChanged();
+            await Task.Delay(1000);
+        }
+    }
+
+    private async Task HandleTileClick(FarmTile tile)
+    {
+        if (CurrentTool == FarmTool.Pointer && SelectedTile == tile)
+        {
+            SelectedTile = null;
+            return;
+        }
+        
+        switch (CurrentTool)
+        {
+            case FarmTool.Plow:
+                // Only plow if it's grass or withered
+                if ((tile.Status == TileStatus.Grass || tile.Status == TileStatus.Withered) && Coins >= 15)
+                {
+                    tile.Status = TileStatus.Plowed;
+                    tile.CurrentCrop = null;
+                    Coins -= 15;
+                    XP += 1;
+
+                    await SaveGame();
+                }
+                break;
+
+            case FarmTool.Rake:
+                // Clear a tile back to grass (maybe for free?)
+                tile.Status = TileStatus.Grass;
+                tile.CurrentCrop = null;
+                
+                await SaveGame();
+                break;
+
+            case FarmTool.Pointer:
+                // Standard interactions: Harvest or Open Market
+                SelectedTile = tile;
+                if (tile.Status == TileStatus.Ready)
+                {
+                    Coins += tile.CurrentCrop?.SellValue ?? 0;
+                    XP += 5;
+                    tile.Status = TileStatus.Plowed;
+                    tile.CurrentCrop = null;
+                    
+                    await SaveGame();
+                }
+                else if (tile.Status == TileStatus.Plowed)
+                {
+                    ShowMarket = true;
+                } 
+                else if (tile.Status == TileStatus.Grass || tile.Status == TileStatus.Withered)
+                {
+                    ShowMarket = false;
+                }
+                break;
+        }
+    }
+
+    private void ChangeTool(FarmTool tool)
+    {
+        CurrentTool = tool;
+        switch (tool)
+        {
+            case FarmTool.Plow:
+                ShowMarket = false;
+                SelectedTile = null;
+                break;
+            case FarmTool.Rake:
+                ShowMarket = false;
+                SelectedTile = null;
+                break;
+        }
+    }
+    
+    private string MarkSelectedTile(FarmTile tile) => 
+        tile == SelectedTile ? "highlighted" : "";
+
+    private void PlantCrop(Crop crop)
+    {
+        if (SelectedTile != null) {
+            SelectedTile.CurrentCrop = crop; SelectedTile.PlantedAt = DateTime.Now;
+            SelectedTile.Status = TileStatus.Planted; Coins -= crop.Cost;
+        }
+        ShowMarket = false;
+        SelectedTile = null;
+    }
+
+    private async Task SaveGame() {
+        await FarmService.SaveFarm(FarmId, new FarmSaveData { Coins = Coins, XP = XP, Grid = FarmGrid });
+    }
+
+    private async Task<bool> LoadGame() {
+        var save = await FarmService.LoadFarm(FarmId);
+
+        if (save is not null) {
+            FarmGrid = save.Grid.OrderBy(t => t.Y).ThenBy(t => t.X).ToList();
+            Coins = save.Coins; 
+            XP = save.XP;
+
+            return true;
+        }
+        
+        return false;
+    }
+}

@@ -1,0 +1,56 @@
+﻿@page "/dashboard"
+@inject FarmService FarmService
+@inject NavigationManager Nav
+
+<div class="dashboard-container">
+    <h1>My Farm Empire</h1>
+    
+    <div class="slots-container">
+        @for (int i = 1; i <= 5; i++)
+        {
+            int slotId = i; // Local copy for closure
+            <div class="save-slot">
+                <h3>Slot @slotId</h3>
+                
+                @if (LoadedSlots.ContainsKey(slotId))
+                {
+                    var farm = LoadedSlots[slotId];
+                    <div class="slot-info">
+                        <p>💰 @farm.Coins</p>
+                        <p>⭐ @farm.XP XP</p>
+                        <button class="btn-play" @onclick="() => EnterFarm(slotId)">Continue</button>
+                        <button class="btn-delete" @onclick="() => DeleteSlot(slotId)">🗑️</button>
+                    </div>
+                }
+                else
+                {
+                    <div class="slot-empty">
+                        <p>Empty Plot</p>
+                        <button class="btn-new" @onclick="() => EnterFarm(slotId)">Start New Farm</button>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    private Dictionary<int, FarmSaveData> LoadedSlots = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        for (int i = 1; i <= 5; i++)
+        {
+            var data = await FarmService.LoadFarm(i);
+            if (data != null) LoadedSlots[i] = data;
+        }
+    }
+
+    private void EnterFarm(int id) => Nav.NavigateTo($"/farm/{id}");
+
+    private async Task DeleteSlot(int id)
+    {
+        await FarmService.DeleteFarm(id);
+        LoadedSlots.Remove(id);
+    }
+}

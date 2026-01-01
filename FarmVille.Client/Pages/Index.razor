@@ -1,0 +1,49 @@
+﻿@page "/"
+@inject NavigationManager Nav
+
+<div class="main-menu-container">
+    <div class="title-section">
+        <h1 class="game-title">BLAZOR VILLE</h1>
+        <p class="tagline">The ultimate C# farming simulator</p>
+    </div>
+
+    <div class="menu-actions">
+        <button class="menu-btn primary" @onclick='() => Nav.NavigateTo("/dashboard")'>
+            <span class="icon">🚜</span> PLAY GAME
+        </button>
+        
+        <button class="menu-btn secondary" @onclick="ToggleHowTo">
+            <span class="icon">📖</span> HOW TO PLAY
+        </button>
+
+        <button class="menu-btn secondary" @onclick="ToggleCredits">
+            <span class="icon">📜</span> CREDITS
+        </button>
+    </div>
+
+    @if (showHowTo)
+    {
+        <div class="modal-overlay" @onclick="ToggleHowTo">
+            <div class="modal-content" @onclick:stopPropagation="true">
+                <h2>How to Play</h2>
+                <ul>
+                    <li>🚜 **Plow** grass to prepare the soil.</li>
+                    <li>🌱 **Plant** seeds from the market.</li>
+                    <li>🌽 **Harvest** crops before they wither!</li>
+                    <li>💰 **Earn** coins to expand your empire.</li>
+                </ul>
+                <button @onclick="ToggleHowTo">Got it!</button>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private bool showHowTo = false;
+    private void ToggleHowTo() => showHowTo = !showHowTo;
+
+    private void ToggleCredits()
+    {
+        
+    }
+}

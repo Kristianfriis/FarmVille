@@ -1,0 +1,28 @@
+﻿.dashboard-container {
+    max-width: 900px;
+    margin: 40px auto;
+    text-align: center;
+}
+
+.slots-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 20px;
+    padding: 20px;
+}
+
+.save-slot {
+    background: #fff;
+    border: 3px solid #5e3a24;
+    border-radius: 12px;
+    padding: 20px;
+    transition: transform 0.2s;
+}
+
+.save-slot:hover {
+    transform: translateY(-5px);
+}
+
+.btn-play { background: #4e9e4e; color: white; border: none; padding: 10px; width: 100%; border-radius: 5px; cursor: pointer; }
+.btn-new { background: #8b4513; color: white; border: none; padding: 10px; width: 100%; border-radius: 5px; cursor: pointer; }
+.btn-delete { background: #ff4d4d; color: white; border: none; margin-top: 10px; cursor: pointer; }

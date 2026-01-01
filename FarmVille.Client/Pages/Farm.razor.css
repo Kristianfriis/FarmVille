@@ -1,0 +1,148 @@
+﻿.toolbar {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    background: #f0f0f0;
+    padding: 10px;
+    border-radius: 8px;
+    border: 2px solid #ccc;
+}
+
+.toolbar button {
+    padding: 8px 16px;
+    border: 2px solid #999;
+    background: white;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.toolbar button.active {
+    background: #ffd700;
+    border-color: #b8860b;
+    transform: scale(1.05);
+    box-shadow: 0 0 8px rgba(255, 215, 0, 0.6);
+}
+
+.farm-grid {
+    display: grid;
+    /*grid-template-columns: repeat(5, 80px);*/
+    /*gap: 4px;*/
+    margin: 20px auto;
+    width: fit-content;
+}
+
+.tile {
+    width: 80px;
+    height: 80px;
+    background: #7cfc00;
+    /*border: 1px solid rgba(0, 0, 0, 0.1);*/
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    cursor: pointer;
+}
+
+.tile:hover {
+    border: 2px solid #212529;
+}
+
+.tile.highlighted {
+    outline: 3px solid #ffd700;
+    outline-offset: -3px;
+    z-index: 5;
+}
+
+.tile.plowed {
+    background: #8b4513;
+}
+
+.tile.withered {
+    background: #4b3621;
+}
+
+.tile-tooltip {
+    display: none;
+    position: absolute;
+    bottom: 100%;
+    background: black;
+    color: white;
+    padding: 2px 5px;
+    font-size: 0.7rem;
+}
+
+.tile:hover .tile-tooltip {
+    display: block;
+}
+
+.game-hud {
+    position: sticky;
+    top: 10px;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(5px);
+    margin: 0 auto 20px auto;
+    padding: 10px 20px;
+    border-radius: 50px;
+    border: 3px solid #5e3a24;
+    width: 90%;
+    max-width: 800px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.hud-left, .hud-right {
+    display: flex;
+    gap: 12px;
+}
+
+/* Stat Pills (Coins/XP) */
+.stat-pill {
+    display: flex;
+    align-items: center;
+    background: #fff;
+    padding: 5px 15px;
+    border-radius: 20px;
+    border: 2px solid #ddd;
+    font-weight: bold;
+}
+
+.stat-pill.coins { border-color: #ffd700; color: #b8860b; }
+.stat-pill.xp { border-color: #4a90e2; color: #2a6099; }
+
+.stat-pill .icon { margin-right: 8px; font-size: 1.2rem; }
+
+/* Center Farm Name */
+.farm-name {
+    margin: 0;
+    font-size: 1.1rem;
+    color: #5e3a24;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* HUD Buttons */
+.hud-btn {
+    background: white;
+    border: 2px solid #ccc;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.hud-btn:hover {
+    transform: translateY(-2px);
+    border-color: #5e3a24;
+    background: #f9f9f9;
+}
+
+.hud-btn.exit:hover { background: #fff5f5; border-color: #ff4d4d; }

@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FarmVille.Client", "FarmVille.Client\FarmVille.Client.csproj", "{DA53FC2B-3024-4A1D-BDFF-D28A4EF2595A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionItems", "{C69EADAA-01F2-42BA-8944-469FF09AFF88}"
+	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+		README.md = README.md
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DA53FC2B-3024-4A1D-BDFF-D28A4EF2595A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DA53FC2B-3024-4A1D-BDFF-D28A4EF2595A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DA53FC2B-3024-4A1D-BDFF-D28A4EF2595A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DA53FC2B-3024-4A1D-BDFF-D28A4EF2595A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

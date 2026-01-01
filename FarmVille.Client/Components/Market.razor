@@ -1,0 +1,36 @@
+﻿@if (Visible)
+{
+    <div class="market-overlay">
+        <div class="market-modal">
+            <h2>Seed Market</h2>
+            <div class="crop-list">
+                @foreach (var crop in Crops)
+                {
+                    <div class="crop-card @(UserCoins < crop.Cost ? "disabled" : "")" @onclick="() => SelectCrop(crop)">
+                        <span style="font-size: 2rem;">@crop.Icon</span>
+                        <strong>@crop.Name</strong>
+                        <p>Cost: @crop.Cost 💰</p>
+                    </div>
+                }
+            </div>
+            <button class="close-btn" @onclick="OnClose">Cancel</button>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public bool Visible { get; set; }
+    [Parameter] public int UserCoins { get; set; }
+    [Parameter] public EventCallback<Crop> OnCropSelected { get; set; }
+    [Parameter] public EventCallback OnClose { get; set; }
+
+    private List<Crop> Crops = new() {
+        new Crop { Name = "Strawberries", Cost = 10, SellValue = 35, GrowthTime = TimeSpan.FromSeconds(30), Icon = "🍓" },
+        new Crop { Name = "Corn", Cost = 25, SellValue = 80, GrowthTime = TimeSpan.FromMinutes(2), Icon = "🌽" }
+    };
+
+    private async Task SelectCrop(Crop crop)
+    {
+        if (UserCoins >= crop.Cost) await OnCropSelected.InvokeAsync(crop);
+    }
+}

@@ -1,0 +1,64 @@
+﻿.main-menu-container {
+    height: 100vh;
+    background: linear-gradient(to bottom, #87CEEB 0%, #4e9e4e 100%); /* Sky to Grass */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.game-title {
+    font-size: 4rem;
+    color: white;
+    text-shadow: 4px 4px 0px #5e3a24;
+    margin-bottom: 0;
+    letter-spacing: 2px;
+}
+
+.menu-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 30px;
+    width: 300px;
+}
+
+.menu-btn {
+    padding: 15px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    border-radius: 50px; /* Pill shape */
+    border: 3px solid #fff;
+    cursor: pointer;
+    transition: transform 0.1s, box-shadow 0.1s;
+}
+
+.menu-btn.primary {
+    background: #ffd700;
+    color: #5e3a24;
+}
+
+.menu-btn.secondary {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+.menu-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5);
+    display: flex; justify-content: center; align-items: center;
+}
+
+.modal-content {
+    background: white;
+    padding: 30px;
+    border-radius: 20px;
+    max-width: 400px;
+}
