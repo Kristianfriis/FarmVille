@@ -25,19 +25,39 @@
     box-shadow: 0 0 8px rgba(255, 215, 0, 0.6);
 }
 
+.farm-viewport {
+    width: 100vw;
+    height: 70vh; /* Adjust based on your HUD/Toolbar height */
+    overflow: hidden;
+    position: relative;
+    background: #3e2723; /* Darker dirt color for the background */
+    cursor: grab;
+    touch-action: none; /* Critical for mobile dragging */
+}
+
+.farm-viewport:active {
+    cursor: grabbing;
+}
+
+.farm-world {
+    will-change: transform;
+    transition: transform 0.05s linear; /* Smooths out jittery mouse movements */
+}
+
 .farm-grid {
     display: grid;
     /*grid-template-columns: repeat(5, 80px);*/
     /*gap: 4px;*/
-    margin: 20px auto;
-    width: fit-content;
+    width: 1280px; 
+    height: 1280px;
+    padding: 100px;
 }
 
 .tile {
-    width: 80px;
-    height: 80px;
+    width: 64px;
+    height: 64px;
     background: #7cfc00;
-    /*border: 1px solid rgba(0, 0, 0, 0.1);*/
+
     display: flex;
     align-items: center;
     justify-content: center;
@@ -46,13 +66,16 @@
 }
 
 .tile:hover {
-    border: 2px solid #212529;
+    filter: brightness(1.2);
 }
 
 .tile.highlighted {
     outline: 3px solid #ffd700;
     outline-offset: -3px;
     z-index: 5;
+    box-shadow: 0px 0px 23px 10px #ffd700;
+-webkit-box-shadow: 0px 0px 23px 10px #ffd700;
+-moz-box-shadow: 0px 0px 23px 10px #ffd700;
 }
 
 .tile.plowed {
@@ -66,11 +89,41 @@
 .tile-tooltip {
     display: none;
     position: absolute;
-    bottom: 100%;
-    background: black;
-    color: white;
-    padding: 2px 5px;
-    font-size: 0.7rem;
+    bottom: 110%; /* Lift it slightly higher above the tile */
+    left: 50%;
+    transform: translateX(-50%); /* Center it over the tile */
+    
+    /* Wooden Palette */
+    background: #a0522d; /* Sienna / Medium wood */
+    color: #fdf5e6;    /* Old Lace / Off-white text */
+    
+    /* The "Pixel Art" Border */
+    padding: 6px 10px;
+    border: 2px solid #5e3a24; /* Dark wood frame */
+    box-shadow: 
+        inset 1px 1px 0px #cd853f,  /* Top-left inner highlight (light wood) */
+        3px 3px 0px rgba(0,0,0,0.4); /* Chunky pixel shadow */
+
+    font-size: 0.8rem;
+    font-weight: bold;
+    white-space: nowrap;
+    z-index: 1000;
+    pointer-events: none; /* Prevents tooltip from blocking clicks */
+    
+    /* Retro smoothing */
+    image-rendering: pixelated;
+    text-shadow: 1px 1px 0px #5e3a24; /* Outline for text readability */
+}
+
+.tile-tooltip::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 6px;
+    border-style: solid;
+    border-color: #5e3a24 transparent transparent transparent;
 }
 
 .tile:hover .tile-tooltip {
@@ -92,10 +145,11 @@
     border: 3px solid #5e3a24;
     width: 90%;
     max-width: 800px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
-.hud-left, .hud-right {
+.hud-left,
+.hud-right {
     display: flex;
     gap: 12px;
 }
@@ -111,10 +165,20 @@
     font-weight: bold;
 }
 
-.stat-pill.coins { border-color: #ffd700; color: #b8860b; }
-.stat-pill.xp { border-color: #4a90e2; color: #2a6099; }
+.stat-pill.coins {
+    border-color: #ffd700;
+    color: #b8860b;
+}
 
-.stat-pill .icon { margin-right: 8px; font-size: 1.2rem; }
+.stat-pill.xp {
+    border-color: #4a90e2;
+    color: #2a6099;
+}
+
+.stat-pill .icon {
+    margin-right: 8px;
+    font-size: 1.2rem;
+}
 
 /* Center Farm Name */
 .farm-name {
@@ -145,4 +209,15 @@
     background: #f9f9f9;
 }
 
-.hud-btn.exit:hover { background: #fff5f5; border-color: #ff4d4d; }
+.hud-btn.exit:hover {
+    background: #fff5f5;
+    border-color: #ff4d4d;
+}
+
+/* The Tree needs to be positioned relative to its bottom-left */
+.tree-overlay {
+    position: absolute;
+    pointer-events: none;
+    /* Let clicks pass through to the ground */
+    z-index: 10;
+}

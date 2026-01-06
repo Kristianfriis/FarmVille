@@ -24,43 +24,70 @@
     </div>
 </div>
 <div class="toolbar">
-    <button class="@(CurrentTool == FarmTool.Pointer ? "active" : "")"
-            @onclick="() => ChangeTool(FarmTool.Pointer)">👆 Pointer</button>
+    <button class="@(CurrentTool == FarmTool.Pointer ? "active" : "")" @onclick="() => ChangeTool(FarmTool.Pointer)">👆
+        Pointer</button>
 
-    <button class="@(CurrentTool == FarmTool.Plow ? "active" : "")"
-            @onclick="() => ChangeTool(FarmTool.Plow)">🚜 Plow</button>
+    <button class="@(CurrentTool == FarmTool.Plow ? "active" : "")" @onclick="() => ChangeTool(FarmTool.Plow)">🚜
+        Plow</button>
 
-    <button class="@(CurrentTool == FarmTool.Rake ? "active" : "")"
-            @onclick="() => ChangeTool(FarmTool.Rake)">🧹 Rake (Clear)</button>
+    <button class="@(CurrentTool == FarmTool.Rake ? "active" : "")" @onclick="() => ChangeTool(FarmTool.Rake)">🧹 Rake
+        (Clear)</button>
 </div>
-<div class="farm-grid" style="grid-template-columns: repeat(5, 80px);">
-    @foreach (var tile in FarmGrid)
-    {
-        <div class="tile @tile.Status.ToString().ToLower() @(MarkSelectedTile(tile))"
-             style="grid-column: @(tile.X + 1); grid-row: @(tile.Y + 1);"
-             @onclick="() => HandleTileClick(tile)">
-            @if (tile.Status == TileStatus.Planted) 
+<div class="farm-viewport" @onmousedown="OnMouseDown" @onmousemove="OnMouseMove" @onmouseup="OnMouseUp"
+    @onmouseleave="OnMouseUp" @ontouchstart="OnTouchStart" @ontouchmove="OnTouchMove" @ontouchend="OnMouseUp">
+
+    <div class="farm-world" style="transform: translate(@(OffsetX)px, @(OffsetY)px);">
+        <div class="farm-grid" style="grid-template-columns: repeat(5, 64px);">
+            @foreach (var tile in FarmGrid)
             {
-                <div class="crop-visual">🌱</div>
-                <div class="tile-tooltip">@tile.GetTimeRemaining()</div>
-            }
-            else if (tile.Status == TileStatus.Ready) 
-            {
-                <div class="crop-visual">@tile.CurrentCrop?.Icon</div>
-            }
-            else if (tile.Status == TileStatus.Withered)
-            {
-                <span>🥀</span>
+                <div class="tile @tile.Status.ToString().ToLower() @(MarkSelectedTile(tile)) cell"
+                    style="grid-column: @(tile.X + 1); grid-row: @(tile.Y + 1);" @onclick="() => HandleTileClick(tile)">
+                    @if (tile.Status == TileStatus.Planted)
+                    {
+                        //<Tile Row="7" Col="6" /> @* Tilled Soil *@
+                        <Tile Type="TileType.TilledSoil" />
+                        <div style="position: absolute; top: 0;">
+                            <Tile Type="TileType.Strawberry1" />
+                        </div>
+                        @* <div class="crop-visual">🌱</div> *@
+                        <div class="tile-tooltip">@tile.GetTimeRemaining()</div>
+                    }
+                    else if (tile.Status == TileStatus.Ready)
+                    {
+                        <Tile Type="TileType.TilledSoil" />
+                        <div style="position: absolute; top: 0;">
+                            <Tile Type="TileType.Strawberry2" />
+                        </div>
+                        <div class="tile-tooltip">Ready</div>
+                        @* <div class="crop-visual">@tile.CurrentCrop?.Icon</div> *@
+                    }
+                    else if (tile.Status == TileStatus.Withered)
+                    {
+                        <span>🥀</span>
+                    }
+                    else if (tile.Status == TileStatus.Plowed)
+                    {
+                        <Tile Type="TileType.TilledSoil" />
+                        @* <div class="tree-overlay" style="left: 48px; top: -32px;">
+                    <LargeTile Row="11" Col="2" />
+                </div> *@
+                    }
+                    else
+                    {
+                        <Tile Type="TileType.Grass" />
+                    }
+                </div>
             }
         </div>
-    }
+    </div>
 </div>
+
 
 <Market Visible="ShowMarket" UserCoins="Coins" OnClose="() => ShowMarket = false" OnCropSelected="PlantCrop" />
 
 @code {
     [Parameter] public int FarmId { get; set; }
-    
+
     private FarmTool CurrentTool = FarmTool.Pointer;
     private int Coins = 100;
     private int XP = 0;
@@ -70,19 +97,19 @@
 
     protected override async Task OnInitializedAsync()
     {
-        if(!await LoadGame()) 
+        if (!await LoadGame())
         {
-            for (int y = 0; y < 5; y++)
+            for (int y = 0; y < 20; y++)
             {
-                for (int x = 0; x < 5; x++)
+                for (int x = 0; x < 20; x++)
                 {
                     FarmGrid.Add(new FarmTile { X = x, Y = y });
                 }
             }
         }
-        
+
         Console.WriteLine(FarmGrid.Count);
-        
+
         StartHeartbeat();
     }
 
@@ -98,12 +125,14 @@
 
     private async Task HandleTileClick(FarmTile tile)
     {
+        if (DragThreshold > 10) return;
+
         if (CurrentTool == FarmTool.Pointer && SelectedTile == tile)
         {
             SelectedTile = null;
             return;
         }
-        
+
         switch (CurrentTool)
         {
             case FarmTool.Plow:
@@ -123,7 +152,7 @@
                 // Clear a tile back to grass (maybe for free?)
                 tile.Status = TileStatus.Grass;
                 tile.CurrentCrop = null;
-                
+
                 await SaveGame();
                 break;
 
@@ -136,13 +165,13 @@
                     XP += 5;
                     tile.Status = TileStatus.Plowed;
                     tile.CurrentCrop = null;
-                    
+
                     await SaveGame();
                 }
                 else if (tile.Status == TileStatus.Plowed)
                 {
                     ShowMarket = true;
-                } 
+                }
                 else if (tile.Status == TileStatus.Grass || tile.Status == TileStatus.Withered)
                 {
                     ShowMarket = false;
@@ -166,35 +195,87 @@
                 break;
         }
     }
-    
-    private string MarkSelectedTile(FarmTile tile) => 
-        tile == SelectedTile ? "highlighted" : "";
 
-    private void PlantCrop(Crop crop)
+    private string MarkSelectedTile(FarmTile tile) =>
+    tile == SelectedTile ? "highlighted" : "";
+
+    private async Task PlantCrop(Crop crop)
     {
-        if (SelectedTile != null) {
+        if (SelectedTile != null)
+        {
             SelectedTile.CurrentCrop = crop; SelectedTile.PlantedAt = DateTime.Now;
             SelectedTile.Status = TileStatus.Planted; Coins -= crop.Cost;
         }
+
+        await SaveGame();
+
         ShowMarket = false;
         SelectedTile = null;
     }
 
-    private async Task SaveGame() {
+    private async Task SaveGame()
+    {
         await FarmService.SaveFarm(FarmId, new FarmSaveData { Coins = Coins, XP = XP, Grid = FarmGrid });
     }
 
-    private async Task<bool> LoadGame() {
+    private async Task<bool> LoadGame()
+    {
         var save = await FarmService.LoadFarm(FarmId);
 
-        if (save is not null) {
+        if (save is not null)
+        {
             FarmGrid = save.Grid.OrderBy(t => t.Y).ThenBy(t => t.X).ToList();
-            Coins = save.Coins; 
+            Coins = save.Coins;
             XP = save.XP;
 
             return true;
         }
-        
+
         return false;
+    }
+
+    private double OffsetX = 0;
+    private double OffsetY = 0;
+    private bool IsDragging = false;
+    private double StartX, StartY;
+    private double DragThreshold = 0; // To distinguish between a click and a drag
+
+    private void OnMouseDown(MouseEventArgs e)
+    {
+        IsDragging = true;
+        DragThreshold = 0;
+        StartX = e.ClientX - OffsetX;
+        StartY = e.ClientY - OffsetY;
+    }
+
+    private void OnMouseMove(MouseEventArgs e)
+    {
+        if (!IsDragging) return;
+        double newX = e.ClientX - StartX;
+        double newY = e.ClientY - StartY;
+
+        // Calculate distance moved to prevent accidental clicks
+        DragThreshold += Math.Abs(newX - OffsetX) + Math.Abs(newY - OffsetY);
+
+        OffsetX = newX;
+        OffsetY = newY;
+    }
+
+    private void OnMouseUp() => IsDragging = false;
+
+    // Apply same logic for Touch (Mobile)
+    private void OnTouchStart(TouchEventArgs e)
+    {
+        IsDragging = true;
+        DragThreshold = 0;
+        StartX = e.Touches[0].ClientX - OffsetX;
+        StartY = e.Touches[0].ClientY - OffsetY;
+    }
+
+    private void OnTouchMove(TouchEventArgs e)
+    {
+        if (!IsDragging) return;
+        OffsetX = e.Touches[0].ClientX - StartX;
+        OffsetY = e.Touches[0].ClientY - StartY;
     }
 }

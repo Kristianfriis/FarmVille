@@ -72,3 +72,6 @@ dotnet watch run
 
 ## ⚖️ License
 MIT - Feel free to use this as a foundation for your own Blazor game projects!
+
+## Acknowledgment
+Sprites are by kathychow from https://kathychow.itch.io/16x16-tiny-garden-free-pack

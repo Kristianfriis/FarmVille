@@ -1,4 +1,4 @@
-html, body {
+/* html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
@@ -34,7 +34,7 @@ a, .btn-link {
 
 .validation-message {
     color: red;
-}
+} */
 
 #blazor-error-ui {
     color-scheme: light only;
@@ -269,4 +269,30 @@ code {
 .close-btn:active {
     box-shadow: none;
     transform: translateY(2px);
+}
+
+.sprite {
+    /* Base settings */
+    width: 16px; /* 16px * 4 */
+    height: 16px;
+    background-image: url('../assets/sprites/farmingTilesheetComplete.png');
+    /* The original sheet is likely around 300-500px wide. 
+       Scale the background size by 400% to match your 4x zoom 
+    */
+    image-rendering: pixelated;
+    background-repeat: no-repeat;
+    display: inline-block;
+     transform: scale(4);
+}
+
+.sprite-large {
+    width: 32px;  /* 2 tiles wide */
+    height: 32px; /* 2 tiles high */
+    background-image: url('../assets/sprites/farmingTilesheetComplete.png');
+    background-repeat: no-repeat;
+    image-rendering: pixelated;
+    display: inline-block;
+    
+    /* Keep scale consistent with your grid */
+    transform: scale(4);
 }

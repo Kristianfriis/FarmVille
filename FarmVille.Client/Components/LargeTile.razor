@@ -1,0 +1,10 @@
+﻿<div class="sprite-large" style="background-position: -@(Col * 16)px -@(Row * 16)px;">
+</div>
+
+@code {
+    [Parameter] public TileType Type { get; set; } = TileType.Grass;
+
+    // These become private because the component calculates them internally
+    private int Row => SpriteMap.GetCoords(Type).Row;
+    private int Col => SpriteMap.GetCoords(Type).Col;
+}
