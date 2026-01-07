@@ -158,8 +158,6 @@
 
     private async Task HandleTileClick(FarmTile tile)
     {
-        if (DragThreshold > 10) return;
-
         if (CurrentTool == FarmTool.Pointer && SelectedTile == tile)
         {
             SelectedTile = null;
