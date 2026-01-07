@@ -32,7 +32,9 @@
     position: relative;
     background: #3e2723; /* Darker dirt color for the background */
     cursor: grab;
-    touch-action: none; /* Critical for mobile dragging */
+    touch-action: none !important; /* Critical for mobile dragging */
+    -webkit-touch-callout: none;
+    user-select: none;
 }
 
 .farm-viewport:active {
@@ -42,6 +44,8 @@
 .farm-world {
     will-change: transform;
     transition: transform 0.05s linear; /* Smooths out jittery mouse movements */
+    pointer-events: auto;
+    display: block;
 }
 
 .farm-grid {
