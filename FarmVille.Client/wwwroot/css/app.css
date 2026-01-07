@@ -1,41 +1,3 @@
-/* html, body {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-}
-
-h1:focus {
-    outline: none;
-}
-
-a, .btn-link {
-    color: #0071c1;
-}
-
-.btn-primary {
-    color: #fff;
-    background-color: #1b6ec2;
-    border-color: #1861ac;
-}
-
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-.content {
-    padding-top: 1.1rem;
-}
-
-.valid.modified:not([type=checkbox]) {
-    outline: 1px solid #26b050;
-}
-
-.invalid {
-    outline: 1px solid red;
-}
-
-.validation-message {
-    color: red;
-} */
-
 #blazor-error-ui {
     color-scheme: light only;
     background: lightyellow;
@@ -66,39 +28,6 @@ a, .btn-link {
     .blazor-error-boundary::after {
         content: "An error has occurred."
     }
-
-/*.loading-progress {*/
-/*    position: relative;*/
-/*    display: block;*/
-/*    width: 8rem;*/
-/*    height: 8rem;*/
-/*    margin: 20vh auto 1rem auto;*/
-/*}*/
-
-/*    .loading-progress circle {*/
-/*        fill: none;*/
-/*        stroke: #e0e0e0;*/
-/*        stroke-width: 0.6rem;*/
-/*        transform-origin: 50% 50%;*/
-/*        transform: rotate(-90deg);*/
-/*    }*/
-
-/*        .loading-progress circle:last-child {*/
-/*            stroke: #1b6ec2;*/
-/*            stroke-dasharray: calc(3.141 * var(--blazor-load-percentage, 0%) * 0.8), 500%;*/
-/*            transition: stroke-dasharray 0.05s ease-in-out;*/
-/*        }*/
-
-/*.loading-progress-text {*/
-/*    position: absolute;*/
-/*    text-align: center;*/
-/*    font-weight: bold;*/
-/*    inset: calc(20vh + 3.25rem) 0 auto 0.2rem;*/
-/*}*/
-
-/*    .loading-progress-text:after {*/
-/*        content: var(--blazor-load-percentage-text, "Loading");*/
-/*    }*/
 
 code {
     color: #c02d76;
@@ -170,11 +99,6 @@ code {
     content: var(--blazor-load-percentage-text, "Loading...");
 }
 
-/*@keyframes bounce {*/
-/*    0%, 100% { transform: translateY(0); }*/
-/*    50% { transform: translateY(-20px); }*/
-/*}*/
-
 .market-overlay {
     /* Critical settings for a true modal */
     position: fixed;
@@ -230,6 +154,7 @@ code {
     align-items: center;
     cursor: pointer;
     transition: all 0.2s ease;
+    height: 64px;
 }
 
 .crop-card:hover:not(.disabled) {
@@ -271,18 +196,26 @@ code {
     transform: translateY(2px);
 }
 
+
+
 .sprite {
-    /* Base settings */
-    width: 16px; /* 16px * 4 */
-    height: 16px;
+    /* Set the actual physical size to 64px */
+    width: 64px; 
+    height: 64px;
+    
     background-image: url('../assets/sprites/farmingTilesheetComplete.png');
-    /* The original sheet is likely around 300-500px wide. 
-       Scale the background size by 400% to match your 4x zoom 
+    
+    /* If your original tiles are 16px, and you want them to be 64px:
+       The background-size needs to be 400% of the original sheet's dimensions.
     */
+    background-size: 832px auto;
+    
     image-rendering: pixelated;
     background-repeat: no-repeat;
     display: inline-block;
-     transform: scale(4);
+    
+    /* Remove this! It's what's causing the layout math to break */
+    /* transform: scale(4); */
 }
 
 .sprite-large {
@@ -295,4 +228,21 @@ code {
     
     /* Keep scale consistent with your grid */
     transform: scale(4);
+}
+
+.woody-panel {
+    background: #a0522d; /* Sienna */
+    background-image: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0, 0, 0, 0.05) 2px,
+        rgba(0, 0, 0, 0.05) 4px
+    );
+    border: 4px solid #5e3a24; /* Dark Wood */
+    box-shadow: 
+        inset 2px 2px 0px #cd853f, /* Highlight */
+        inset -2px -2px 0px #8b4513, /* Shadow */
+        4px 4px 0px rgba(0,0,0,0.3); /* Outer Shadow */
+    image-rendering: pixelated;
 }

@@ -1,4 +1,6 @@
-﻿namespace FarmVille.Client.Models;
+﻿using FarmVille.Client.Components;
+
+namespace FarmVille.Client.Models;
 
 public class Crop
     {
@@ -8,4 +10,5 @@ public class Crop
         public TimeSpan GrowthTime { get; set; }
         public int UnlockLevel { get; set; }
         public string Icon { get; set; } = "🌱";
+        public TileType IconType {get; set;}
     }

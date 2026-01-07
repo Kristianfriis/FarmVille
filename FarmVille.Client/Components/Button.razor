@@ -1,0 +1,54 @@
+﻿<button class="game-btn @Type" 
+        style="--bg-color: @_colors.Main; --shadow-color: @_colors.Shadow;" 
+        @onclick="OnClick">
+    <span class="btn-content">@ChildContent</span>
+</button>
+
+<style>
+    .game-btn {
+        /* Use the CSS variables from C# */
+        background: var(--bg-color);
+        color: #fdf5e6;
+        border: 4px solid #5e3a24; /* Consistent Dark Wood Frame */
+        padding: 8px 20px;
+        font-family: 'VT323', monospace;
+        font-size: 1.2rem;
+        cursor: pointer;
+        position: relative;
+        image-rendering: pixelated;
+        
+        /* The "Chunky" 3D Shadow */
+        box-shadow: 
+            inset 2px 2px 0px rgba(255,255,255,0.3), /* Highlight */
+            0px 4px 0px var(--shadow-color);         /* Bottom Depth */
+        
+        transition: none; /* Instant reaction for retro feel */
+        margin-bottom: 4px; /* Space for the shadow */
+    }
+
+    .game-btn:active {
+        transform: translateY(2px);
+        box-shadow: 
+            inset 2px 2px 0px rgba(255,255,255,0.3),
+            0px 2px 0px var(--shadow-color);
+    }
+
+    .btn-content {
+        text-shadow: 2px 2px 0px rgba(0,0,0,0.5);
+    }
+</style>
+
+@code {
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public EventCallback OnClick { get; set; }
+    [Parameter] public ButtonType Type { get; set; } = ButtonType.Primary;
+
+    // Simplified color mapping
+    private (string Main, string Shadow) _colors => Type switch
+    {
+        ButtonType.Primary => ("#4CAF50", "#2E7D32"), // Green
+        ButtonType.Danger => ("#ff4d4d", "#b30000"),  // Red
+        ButtonType.Secondary => ("#cd853f", "#8b4513"), // Woody Brown
+        _ => ("#4CAF50", "#2E7D32")
+    };
+}

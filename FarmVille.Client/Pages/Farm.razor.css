@@ -114,79 +114,6 @@
     display: block;
 }
 
-.game-hud {
-    position: sticky;
-    top: 10px;
-    z-index: 100;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: rgba(255, 255, 255, 0.9);
-    backdrop-filter: blur(5px);
-    margin: 0 auto 20px auto;
-    padding: 10px 20px;
-    border-radius: 50px;
-    border: 3px solid #5e3a24;
-    width: 90%;
-    max-width: 800px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-}
-
-.hud-left,
-.hud-right {
-    display: flex;
-    gap: 12px;
-}
-
-.stat-pill.coins {
-    border-color: #ffd700;
-    color: #b8860b;
-}
-
-.stat-pill.xp {
-    border-color: #4a90e2;
-    color: #2a6099;
-}
-
-.stat-pill .icon {
-    margin-right: 8px;
-    font-size: 1.2rem;
-}
-
-/* Center Farm Name */
-.farm-name {
-    margin: 0;
-    font-size: 1.1rem;
-    color: #5e3a24;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-/* HUD Buttons */
-.hud-btn {
-    background: white;
-    border: 2px solid #ccc;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.hud-btn:hover {
-    transform: translateY(-2px);
-    border-color: #5e3a24;
-    background: #f9f9f9;
-}
-
-.hud-btn.exit:hover {
-    background: #fff5f5;
-    border-color: #ff4d4d;
-}
-
 /* The Tree needs to be positioned relative to its bottom-left */
 .tree-overlay {
     position: absolute;
@@ -195,96 +122,40 @@
     z-index: 10;
 }
 
-/* Shared Wood Style */
-.woody-panel {
-    background: #a0522d; /* Sienna */
-    background-image: repeating-linear-gradient(
-        0deg,
-        transparent,
-        transparent 2px,
-        rgba(0, 0, 0, 0.05) 2px,
-        rgba(0, 0, 0, 0.05) 4px
-    );
-    border: 4px solid #5e3a24; /* Dark Wood */
-    box-shadow: 
-        inset 2px 2px 0px #cd853f, /* Highlight */
-        inset -2px -2px 0px #8b4513, /* Shadow */
-        4px 4px 0px rgba(0,0,0,0.3); /* Outer Shadow */
-    image-rendering: pixelated;
+.market-item {
+    height: 64px;
 }
 
-/* Game HUD (Top) */
-.game-hud {
-    position: fixed; /* Changed to fixed to stay on top of the viewport */
-    top: 10px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 100;
+
+.market-grid {
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
+    gap: 12px;
+    padding: 5px; /* Extra breathing room inside the body */
+}
+
+.market-item {
+    display: flex;
     align-items: center;
-    padding: 8px 16px;
-    width: 95%;
-    max-width: 800px;
-    
-    /* Apply Wood */
-    background: #a0522d;
-    border: 4px solid #5e3a24;
-    box-shadow: inset 2px 2px 0px #cd853f, 4px 4px 0px rgba(0,0,0,0.3);
-}
-
-/* Toolbar (Bottom) */
-.toolbar {
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 100;
-    display: flex;
-    gap: 8px;
+    gap: 15px;
     padding: 10px;
-    
-    /* Apply Wood */
-    background: #a0522d;
-    border: 4px solid #5e3a24;
-    box-shadow: inset 2px 2px 0px #cd853f, 4px 4px 0px rgba(0,0,0,0.3);
-     border-radius: 5px;
-}
-
-/* Woody Buttons */
-.toolbar button, .hud-btn {
-    background: #cd853f; /* Lighter wood */
-    border: 3px solid #5e3a24;
-    color: #fdf5e6;
-    font-family: 'Courier New', Courier, monospace; /* Or a Pixel Font */
-    font-weight: bold;
-    text-transform: uppercase;
-    padding: 6px 12px;
-    cursor: pointer;
-    box-shadow: inset 1px 1px 0px #deb887;
-    image-rendering: pixelated;
-}
-
-.toolbar button.active {
-    background: #ffd700; /* Gold highlight when active */
-    color: #5e3a24;
-    border-color: #b8860b;
-    transform: translateY(2px); /* "Pressed" feel */
-    box-shadow: none;
-}
-
-.toolbar button {
-    border-radius: 5px;
-}
-
-.stat-pill {
-    background: rgba(0,0,0,0.2); /* Inset darker area for stats */
+    background: rgba(0, 0, 0, 0.2); /* Inset "slot" look */
     border: 2px solid #5e3a24;
-    padding: 2px 10px;
-    border-radius: 0; /* Square/Pixel feel */
-    color: #ffd700;
+    cursor: pointer;
+    transition: transform 0.1s;
+}
+
+.market-item:active {
+    background: rgba(255, 255, 255, 0.1);
+    transform: scale(0.98);
+}
+
+.market-item .icon-wrapper {
+    width: 48px;
+    height: 48px;
     display: flex;
     align-items: center;
-    gap: 5px;
-    border-radius: 5px;
+    justify-content: center;
+    background: #5e3a24; /* Background for the seed bag */
+    border: 2px solid #8b4513;
 }

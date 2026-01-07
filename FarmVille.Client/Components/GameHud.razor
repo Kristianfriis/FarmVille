@@ -1,0 +1,36 @@
+﻿@inject NavigationManager Nav
+
+<div class="game-hud">
+    <div class="hud-left">
+        <div class="stat-pill coins">
+            <span class="icon">💰</span>
+            <span class="value">@Coins.ToString("N0")</span>
+        </div>
+        <div class="stat-pill xp">
+            <span class="icon">⭐</span>
+            <span class="value">@XP.ToString("N0")</span>
+        </div>
+    </div>
+
+    <div class="hud-center">
+        <h2 class="farm-name">Farm #@FarmId</h2>
+    </div>
+
+    <div class="hud-right">
+        <button class="hud-btn save" @onclick="SaveGame" title="Save Game">💾</button>
+        <button class="hud-btn exit" @onclick='() => Nav.NavigateTo("/")' title="Exit to Menu">🏠</button>
+    </div>
+</div>
+
+@code {
+    [Parameter] public int FarmId { get; set; }
+    [Parameter] public int Coins { get; set; }
+    [Parameter] public int XP { get; set; }
+
+    [Parameter] public EventCallback OnSaveGame { get; set; }
+
+    private async Task SaveGame()
+    {
+        await OnSaveGame.InvokeAsync();
+    }
+}

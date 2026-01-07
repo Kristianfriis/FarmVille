@@ -3,27 +3,7 @@
 @inject NavigationManager Nav
 @inject IJSRuntime JSRuntime
 
-<div class="game-hud">
-    <div class="hud-left">
-        <div class="stat-pill coins">
-            <span class="icon">💰</span>
-            <span class="value">@Coins.ToString("N0")</span>
-        </div>
-        <div class="stat-pill xp">
-            <span class="icon">⭐</span>
-            <span class="value">@XP.ToString("N0")</span>
-        </div>
-    </div>
-
-    <div class="hud-center">
-        <h2 class="farm-name">Farm #@FarmId</h2>
-    </div>
-
-    <div class="hud-right">
-        <button class="hud-btn save" @onclick="SaveGame" title="Save Game">💾</button>
-        <button class="hud-btn exit" @onclick='() => Nav.NavigateTo("/")' title="Exit to Menu">🏠</button>
-    </div>
-</div>
+<GameHud FarmId="FarmId" Coins="Coins" XP="XP" OnSaveGame="SaveGame" />
 
 <div id="farm-viewport" class="farm-viewport">
 
@@ -74,16 +54,31 @@
     </div>
 </div>
 
-<div class="toolbar">
-    <button class="@(CurrentTool == FarmTool.Pointer ? "active" : "")" @onclick="() => ChangeTool(FarmTool.Pointer)">👆</button>
+<Toolbar CurrentTool="CurrentTool" OnToolChange="ChangeTool" />
 
-    <button class="@(CurrentTool == FarmTool.Plow ? "active" : "")" @onclick="() => ChangeTool(FarmTool.Plow)">🚜</button>
+<GameModal Visible="ShowMarket" 
+           Title="SEED MARKET" 
+           OnClose="() => ShowMarket = false">
+    <ChildContent>
+    <div class="market-grid">
+        @foreach(var crop in Crops) {
+            <div class="market-item" @onclick="() => PlantCrop(crop)">
+                <Tile Type="crop.IconType" />
+                <span>@crop.Name (@crop.Cost 💰)</span>
+            </div>
+        }
+    </div>
+    </ChildContent>
 
-    <button class="@(CurrentTool == FarmTool.Rake ? "active" : "")" @onclick="() => ChangeTool(FarmTool.Rake)">🧹</button>
-</div>
+    <FooterContent>
+        <Button Type="ButtonType.Danger" OnClick="() => ShowMarket = false">
+            NEVERMIND
+        </Button>
+    </FooterContent>
+</GameModal>
 
-<Market Visible="ShowMarket" UserCoins="Coins" OnClose="() => { ShowMarket = false; SelectedTile = null; }"
-    OnCropSelected="PlantCrop" />
+@* <Market Visible="ShowMarket" UserCoins="Coins" OnClose="() => { ShowMarket = false; SelectedTile = null; }"
+    OnCropSelected="PlantCrop" /> *@
 
 @code {
     [Parameter] public int FarmId { get; set; }
@@ -94,6 +89,11 @@
     private bool ShowMarket = false;
     private FarmTile? SelectedTile;
     private List<FarmTile> FarmGrid = new();
+        
+    private List<Crop> Crops = new() {
+        new Crop { Name = "Strawberries", Cost = 10, SellValue = 35, GrowthTime = TimeSpan.FromSeconds(30), Icon = "🍓", IconType = TileType.StrawberrySeed },
+        new Crop { Name = "Corn", Cost = 25, SellValue = 80, GrowthTime = TimeSpan.FromMinutes(2), Icon = "🌽", IconType = TileType.CornSeed }
+    };
 
     private double BaseX = 0; // Store the position where the drag started
     private double BaseY = 0;
