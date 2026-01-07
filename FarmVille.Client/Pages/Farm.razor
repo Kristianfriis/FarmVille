@@ -64,7 +64,7 @@
             @foreach (var crop in Crops)
             {
                 <div class="market-item" @onclick="() => PlantCrop(crop)">
-                    <Tile Type="crop.IconType" />
+                    <Tile Type="crop.SeedType" />
                     <span>@crop.Name (@crop.Cost 💰)</span>
                 </div>
             }
