@@ -1,5 +1,6 @@
 ﻿@page "/Farm/{FarmId:int}"
 @inject FarmService FarmService
+@inject CropService CropService
 @inject NavigationManager Nav
 @inject IJSRuntime JSRuntime
 
@@ -72,7 +73,7 @@
     </ChildContent>
 
     <FooterContent>
-        <Button Type="ButtonType.Danger" OnClick="() => ShowMarket = false">
+        <Button Type="ButtonType.Danger" OnClick="() => {ShowMarket = false; SelectedTile = null;}">
             NEVERMIND
         </Button>
     </FooterContent>
@@ -87,11 +88,7 @@
     private bool ShowMarket = false;
     private FarmTile? SelectedTile;
     private List<FarmTile> FarmGrid = new();
-
-    private List<Crop> Crops = new() {
-        new Crop { Name = "Strawberries", Cost = 10, SellValue = 35, GrowthTime = TimeSpan.FromSeconds(30),IconType = TileType.StrawberrySeed, SeedType = TileType.StrawberrySeed, Stage1Type = TileType.Strawberry1, ReadyType = TileType.Strawberry2 },
-        new Crop { Name = "Corn", Cost = 25, SellValue = 80, GrowthTime = TimeSpan.FromMinutes(2), IconType = TileType.CornSeed, SeedType = TileType.CornSeed, Stage1Type = TileType.Corn1, ReadyType = TileType.Corn2  }
-    };
+    private List<Crop> Crops = new();
 
     private double BaseX = 0; // Store the position where the drag started
     private double BaseY = 0;
@@ -100,6 +97,8 @@
 
     protected override async Task OnInitializedAsync()
     {
+        Crops = CropService.GetAllCrops();
+
         if (!await LoadGame())
         {
             for (int y = 0; y < 20; y++)
@@ -159,8 +158,6 @@
 
     private async Task HandleTileClick(FarmTile tile)
     {
-        Console.WriteLine($"Clicked tile at ({tile.X}, {tile.Y}) with tool {CurrentTool}");
-        Console.WriteLine($"Tile status: {tile.Status}");
         if (CurrentTool == FarmTool.Pointer && SelectedTile == tile)
         {
             SelectedTile = null;
@@ -195,7 +192,6 @@
                 SelectedTile = tile;
                 if (tile.Status == TileStatus.Ready)
                 {
-                    Console.WriteLine("Harvesting crop!");
                     Coins += tile.CurrentCrop?.SellValue ?? 0;
                     XP += 5;
                     tile.Status = TileStatus.Plowed;

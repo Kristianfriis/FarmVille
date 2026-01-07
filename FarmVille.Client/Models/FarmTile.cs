@@ -14,7 +14,7 @@ public class FarmTile
         if (Status == TileStatus.Planted && PlantedAt.HasValue && CurrentCrop != null)
         {
             var elapsed = DateTime.Now - PlantedAt.Value;
-            if (elapsed > (CurrentCrop.GrowthTime * 2)) 
+            if (elapsed > CurrentCrop.GrowthTime.Add(TimeSpan.FromDays(1))) 
                 Status = TileStatus.Withered;
             else if (elapsed >= CurrentCrop.GrowthTime) 
                 Status = TileStatus.Ready;
