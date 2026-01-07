@@ -3,7 +3,7 @@
     top: -30px; /* Positions it above the crop layer */
     left: 50%;
     transform: translateX(-50%);
-    z-index: 1000; /* Ensure it's above all tiles */
+    z-index: 3000; /* Ensure it's above all tiles */
     pointer-events: none; /* Don't block clicks to the tile */
     display: flex;
     flex-direction: column;
