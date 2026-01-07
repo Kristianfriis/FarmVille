@@ -1,6 +1,7 @@
 ﻿@page "/Farm/{FarmId:int}"
 @inject FarmService FarmService
 @inject NavigationManager Nav
+@inject IJSRuntime JSRuntime
 
 <div class="game-hud">
     <div class="hud-left">
@@ -23,25 +24,16 @@
         <button class="hud-btn exit" @onclick='() => Nav.NavigateTo("/")' title="Exit to Menu">🏠</button>
     </div>
 </div>
-<div class="toolbar">
-    <button class="@(CurrentTool == FarmTool.Pointer ? "active" : "")" @onclick="() => ChangeTool(FarmTool.Pointer)">👆
-        Pointer</button>
 
-    <button class="@(CurrentTool == FarmTool.Plow ? "active" : "")" @onclick="() => ChangeTool(FarmTool.Plow)">🚜
-        Plow</button>
+<div id="farm-viewport" class="farm-viewport">
 
-    <button class="@(CurrentTool == FarmTool.Rake ? "active" : "")" @onclick="() => ChangeTool(FarmTool.Rake)">🧹 Rake
-        (Clear)</button>
-</div>
-<div class="farm-viewport" @onmousedown="OnMouseDown" @onmousemove="OnMouseMove" @onmouseup="OnMouseUp"
-    @onmouseleave="OnMouseUp" @ontouchstart="OnTouchStart" @ontouchmove="OnTouchMove" @ontouchmove:preventDefault="true" @ontouchend="OnMouseUp">
-
-    <div class="farm-world" style="transform: translate(@(OffsetX)px, @(OffsetY)px);">
-        <div class="farm-grid" style="grid-template-columns: repeat(5, 64px);">
+   <div class="farm-world" style="transform: translate3d(@(OffsetX)px, @(OffsetY)px, 0px);">
+        <div class="farm-grid" style="grid-template-columns: repeat(20, 64px);">
             @foreach (var tile in FarmGrid)
             {
                 <div class="tile @tile.Status.ToString().ToLower() @(MarkSelectedTile(tile)) cell"
-                    style="grid-column: @(tile.X + 1); grid-row: @(tile.Y + 1);" @onclick="() => HandleTileClick(tile)">
+                   style="grid-column: @(tile.X + 1); grid-row: @(tile.Y + 1);" @onclick="() => HandleTileClick(tile)"
+                    @onclick:stopPropagation>
                     @if (tile.Status == TileStatus.Planted)
                     {
                         //<Tile Row="7" Col="6" /> @* Tilled Soil *@
@@ -82,8 +74,16 @@
     </div>
 </div>
 
+<div class="toolbar">
+    <button class="@(CurrentTool == FarmTool.Pointer ? "active" : "")" @onclick="() => ChangeTool(FarmTool.Pointer)">👆</button>
 
-<Market Visible="ShowMarket" UserCoins="Coins" OnClose="() => ShowMarket = false" OnCropSelected="PlantCrop" />
+    <button class="@(CurrentTool == FarmTool.Plow ? "active" : "")" @onclick="() => ChangeTool(FarmTool.Plow)">🚜</button>
+
+    <button class="@(CurrentTool == FarmTool.Rake ? "active" : "")" @onclick="() => ChangeTool(FarmTool.Rake)">🧹</button>
+</div>
+
+<Market Visible="ShowMarket" UserCoins="Coins" OnClose="() => { ShowMarket = false; SelectedTile = null; }"
+    OnCropSelected="PlantCrop" />
 
 @code {
     [Parameter] public int FarmId { get; set; }
@@ -94,6 +94,11 @@
     private bool ShowMarket = false;
     private FarmTile? SelectedTile;
     private List<FarmTile> FarmGrid = new();
+
+    private double BaseX = 0; // Store the position where the drag started
+    private double BaseY = 0;
+    private double OffsetX = 0;
+    private double OffsetY = 0;
 
     protected override async Task OnInitializedAsync()
     {
@@ -111,6 +116,34 @@
         Console.WriteLine(FarmGrid.Count);
 
         StartHeartbeat();
+    }
+
+ protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Pass a reference to this C# component to JS
+            var dotNetHelper = DotNetObjectReference.Create(this);
+            await JSRuntime.InvokeVoidAsync("initFarmPan", dotNetHelper, "farm-viewport");
+        }
+    }
+
+    [JSInvokable]
+    public void OnPanStart()
+    {
+        // Remember where we were when the drag started
+        BaseX = OffsetX;
+        BaseY = OffsetY;
+    }
+
+    [JSInvokable]
+    public void OnPanMove(double deltaX, double deltaY)
+    {
+        OffsetX = BaseX + deltaX;
+        OffsetY = BaseY + deltaY;
+
+        ApplyBounds();
+        StateHasChanged();
     }
 
     private async void StartHeartbeat()
@@ -234,48 +267,25 @@
         return false;
     }
 
-    private double OffsetX = 0;
-    private double OffsetY = 0;
-    private bool IsDragging = false;
-    private double StartX, StartY;
-    private double DragThreshold = 0; // To distinguish between a click and a drag
-
-    private void OnMouseDown(MouseEventArgs e)
+private void ApplyBounds()
     {
-        IsDragging = true;
-        DragThreshold = 0;
-        StartX = e.ClientX - OffsetX;
-        StartY = e.ClientY - OffsetY;
-    }
+        // The size of your farm (20 tiles * 64px)
+        // If you added padding in CSS, include it here
+        double farmWidth = 1280;
+        double farmHeight = 1280;
 
-    private void OnMouseMove(MouseEventArgs e)
-    {
-        if (!IsDragging) return;
-        double newX = e.ClientX - StartX;
-        double newY = e.ClientY - StartY;
+        // Get the current window size (you can also hardcode or use JS Interop)
+        // For now, let's assume a standard "buffer"
+        // We want to prevent the Offset from going too far positive (pushing farm right/down)
+        // or too far negative (pushing farm left/up)
 
-        // Calculate distance moved to prevent accidental clicks
-        DragThreshold += Math.Abs(newX - OffsetX) + Math.Abs(newY - OffsetY);
+        double minX = -(farmWidth - 200); // Allow 200px to stay on screen
+        double maxX = 200;
 
-        OffsetX = newX;
-        OffsetY = newY;
-    }
+        double minY = -(farmHeight - 200);
+        double maxY = 200;
 
-    private void OnMouseUp() => IsDragging = false;
-
-    // Apply same logic for Touch (Mobile)
-    private void OnTouchStart(TouchEventArgs e)
-    {
-        IsDragging = true;
-        DragThreshold = 0;
-        StartX = e.Touches[0].ClientX - OffsetX;
-        StartY = e.Touches[0].ClientY - OffsetY;
-    }
-
-    private void OnTouchMove(TouchEventArgs e)
-    {
-        if (!IsDragging) return;
-        OffsetX = e.Touches[0].ClientX - StartX;
-        OffsetY = e.Touches[0].ClientY - StartY;
+        OffsetX = Math.Clamp(OffsetX, minX, maxX);
+        OffsetY = Math.Clamp(OffsetY, minY, maxY);
     }
 }
