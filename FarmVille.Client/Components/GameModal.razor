@@ -1,0 +1,110 @@
+﻿@if (Visible)
+{
+    <div class="modal-backdrop" @onclick="Close">
+        <div class="modal-container woody-panel" @onclick:stopPropagation>
+            <div class="modal-header">
+                <h2 class="modal-title">@Title</h2>
+                <button class="modal-close-icon" @onclick="Close">×</button>
+            </div>
+
+            <div class="modal-body">
+                @ChildContent
+            </div>
+
+            @if (FooterContent != null)
+            {
+                <div class="modal-footer">
+                    @FooterContent
+                </div>
+            }
+        </div>
+    </div>
+}
+
+<style>
+    .modal-backdrop {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.7); /* Darken the farm */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 2000;
+        backdrop-filter: blur(2px); /* Soften the background */
+    }
+
+    .modal-container {
+        width: 100%;
+        max-width: 500px;
+        max-height: 80vh;
+        display: flex;
+        flex-direction: column;
+        animation: pixel-pop 0.15s ease-out;
+        padding: 15px;
+    }
+
+    /* Pixel Art Pop-in Animation */
+    @@keyframes pixel-pop {
+        from { transform: scale(0.8); opacity: 0; }
+        to { transform: scale(1); opacity: 1; }
+    }
+
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 4px solid #5e3a24;
+        padding-bottom: 8px;
+        margin-bottom: 15px;
+    }
+
+    .modal-title {
+        margin: 0;
+        color: #ffd700; /* Golden text */
+        text-shadow: 2px 2px 0px #5e3a24;
+        font-family: 'VT323', monospace;
+        font-size: 2rem;
+    }
+
+    .modal-close-icon {
+        background: #5e3a24;
+        color: #fdf5e6;
+        border: none;
+        font-size: 1.5rem;
+        width: 30px;
+        height: 30px;
+        cursor: pointer;
+        line-height: 1;
+        image-rendering: pixelated;
+    }
+
+    .modal-body {
+        flex-grow: 1;
+        padding: 5px;
+        font-family: 'VT323', monospace;
+        font-size: 1.2rem;
+        color: #fdf5e6;
+    }
+
+    .modal-footer {
+        margin-top: 20px;
+        padding-top: 15px;
+        border-top: 4px solid #5e3a24;
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+</style>
+
+@code {
+    [Parameter] public bool Visible { get; set; }
+    [Parameter] public string Title { get; set; } = "Alert";
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public RenderFragment? FooterContent { get; set; }
+    [Parameter] public EventCallback OnClose { get; set; }
+
+    private async Task Close() => await OnClose.InvokeAsync();
+}

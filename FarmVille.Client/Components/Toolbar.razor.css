@@ -1,0 +1,43 @@
+/* Toolbar (Bottom) */
+.toolbar {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100;
+    display: flex;
+    gap: 8px;
+    padding: 10px;
+    
+    /* Apply Wood */
+    background: #a0522d;
+    border: 4px solid #5e3a24;
+    box-shadow: inset 2px 2px 0px #cd853f, 4px 4px 0px rgba(0,0,0,0.3);
+     border-radius: 5px;
+}
+
+/* Woody Buttons */
+.toolbar button, .hud-btn {
+    background: #cd853f; /* Lighter wood */
+    border: 3px solid #5e3a24;
+    color: #fdf5e6;
+    font-family: 'Courier New', Courier, monospace; /* Or a Pixel Font */
+    font-weight: bold;
+    text-transform: uppercase;
+    padding: 6px 12px;
+    cursor: pointer;
+    box-shadow: inset 1px 1px 0px #deb887;
+    image-rendering: pixelated;
+}
+
+.toolbar button.active {
+    background: #ffd700; /* Gold highlight when active */
+    color: #5e3a24;
+    border-color: #b8860b;
+    transform: translateY(2px); /* "Pressed" feel */
+    box-shadow: none;
+}
+
+.toolbar button {
+    border-radius: 5px;
+}

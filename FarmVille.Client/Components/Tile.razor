@@ -6,6 +6,6 @@
     [Parameter] public TileType Type { get; set; } = TileType.Grass;
 
     // These become private because the component calculates them internally
-    private int Row => SpriteMap.GetCoords(Type).Row;
-    private int Col => SpriteMap.GetCoords(Type).Col;
+    private int Row => SpriteMap.GetCoords(Type).Row * 4;
+    private int Col => SpriteMap.GetCoords(Type).Col * 4;
 }

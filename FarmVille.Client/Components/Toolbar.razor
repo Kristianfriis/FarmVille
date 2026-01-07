@@ -1,0 +1,21 @@
+﻿<div class="toolbar">
+    <button class="@(CurrentTool == FarmTool.Pointer ? "active" : "")" @onclick="() => ChangeTool(FarmTool.Pointer)">👆</button>
+
+    <button class="@(CurrentTool == FarmTool.Plow ? "active" : "")" @onclick="() => ChangeTool(FarmTool.Plow)">🚜</button>
+
+    <button class="@(CurrentTool == FarmTool.Rake ? "active" : "")" @onclick="() => ChangeTool(FarmTool.Rake)">🧹</button>
+</div>
+
+@code {
+    [Parameter] public FarmTool CurrentTool { get; set; }
+    [Parameter] public EventCallback<FarmTool> OnToolChange { get; set; }
+
+    private async Task ChangeTool(FarmTool tool)
+    {
+        if (tool != CurrentTool)
+        {
+            CurrentTool = tool;
+            await OnToolChange.InvokeAsync(tool);
+        }
+    }
+}
