@@ -34,7 +34,7 @@
         (Clear)</button>
 </div>
 <div class="farm-viewport" @onmousedown="OnMouseDown" @onmousemove="OnMouseMove" @onmouseup="OnMouseUp"
-    @onmouseleave="OnMouseUp" @ontouchstart="OnTouchStart" @ontouchmove="OnTouchMove" @ontouchend="OnMouseUp">
+    @onmouseleave="OnMouseUp" @ontouchstart="OnTouchStart" @ontouchmove="OnTouchMove" @ontouchmove:preventDefault="true" @ontouchend="OnMouseUp">
 
     <div class="farm-world" style="transform: translate(@(OffsetX)px, @(OffsetY)px);">
         <div class="farm-grid" style="grid-template-columns: repeat(5, 64px);">
