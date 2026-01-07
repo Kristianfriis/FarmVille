@@ -1,33 +1,6 @@
-﻿.toolbar {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    margin-bottom: 20px;
-    background: #f0f0f0;
-    padding: 10px;
-    border-radius: 8px;
-    border: 2px solid #ccc;
-}
-
-.toolbar button {
-    padding: 8px 16px;
-    border: 2px solid #999;
-    background: white;
-    cursor: pointer;
-    border-radius: 4px;
-    transition: all 0.2s;
-}
-
-.toolbar button.active {
-    background: #ffd700;
-    border-color: #b8860b;
-    transform: scale(1.05);
-    box-shadow: 0 0 8px rgba(255, 215, 0, 0.6);
-}
-
 .farm-viewport {
     width: 100vw;
-    height: 70vh; /* Adjust based on your HUD/Toolbar height */
+    height: 100vh; /* Adjust based on your HUD/Toolbar height */
     overflow: hidden;
     position: relative;
     background: #3e2723; /* Darker dirt color for the background */
@@ -42,10 +15,10 @@
 }
 
 .farm-world {
-    will-change: transform;
-    transition: transform 0.05s linear; /* Smooths out jittery mouse movements */
-    pointer-events: auto;
-    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    touch-action: none !important;
 }
 
 .farm-grid {
@@ -55,6 +28,7 @@
     width: 1280px; 
     height: 1280px;
     padding: 100px;
+    touch-action: none !important;
 }
 
 .tile {
@@ -67,10 +41,16 @@
     justify-content: center;
     position: relative;
     cursor: pointer;
+
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    z-index: 1;
 }
 
-.tile:hover {
-    filter: brightness(1.2);
+.tile:active {
+    filter: brightness(0.8);
+    /* transform: scale(0.95); */
+    transition: transform 0.05s;
 }
 
 .tile.highlighted {
@@ -158,17 +138,6 @@
     gap: 12px;
 }
 
-/* Stat Pills (Coins/XP) */
-.stat-pill {
-    display: flex;
-    align-items: center;
-    background: #fff;
-    padding: 5px 15px;
-    border-radius: 20px;
-    border: 2px solid #ddd;
-    font-weight: bold;
-}
-
 .stat-pill.coins {
     border-color: #ffd700;
     color: #b8860b;
@@ -224,4 +193,98 @@
     pointer-events: none;
     /* Let clicks pass through to the ground */
     z-index: 10;
+}
+
+/* Shared Wood Style */
+.woody-panel {
+    background: #a0522d; /* Sienna */
+    background-image: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0, 0, 0, 0.05) 2px,
+        rgba(0, 0, 0, 0.05) 4px
+    );
+    border: 4px solid #5e3a24; /* Dark Wood */
+    box-shadow: 
+        inset 2px 2px 0px #cd853f, /* Highlight */
+        inset -2px -2px 0px #8b4513, /* Shadow */
+        4px 4px 0px rgba(0,0,0,0.3); /* Outer Shadow */
+    image-rendering: pixelated;
+}
+
+/* Game HUD (Top) */
+.game-hud {
+    position: fixed; /* Changed to fixed to stay on top of the viewport */
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 16px;
+    width: 95%;
+    max-width: 800px;
+    
+    /* Apply Wood */
+    background: #a0522d;
+    border: 4px solid #5e3a24;
+    box-shadow: inset 2px 2px 0px #cd853f, 4px 4px 0px rgba(0,0,0,0.3);
+}
+
+/* Toolbar (Bottom) */
+.toolbar {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100;
+    display: flex;
+    gap: 8px;
+    padding: 10px;
+    
+    /* Apply Wood */
+    background: #a0522d;
+    border: 4px solid #5e3a24;
+    box-shadow: inset 2px 2px 0px #cd853f, 4px 4px 0px rgba(0,0,0,0.3);
+     border-radius: 5px;
+}
+
+/* Woody Buttons */
+.toolbar button, .hud-btn {
+    background: #cd853f; /* Lighter wood */
+    border: 3px solid #5e3a24;
+    color: #fdf5e6;
+    font-family: 'Courier New', Courier, monospace; /* Or a Pixel Font */
+    font-weight: bold;
+    text-transform: uppercase;
+    padding: 6px 12px;
+    cursor: pointer;
+    box-shadow: inset 1px 1px 0px #deb887;
+    image-rendering: pixelated;
+}
+
+.toolbar button.active {
+    background: #ffd700; /* Gold highlight when active */
+    color: #5e3a24;
+    border-color: #b8860b;
+    transform: translateY(2px); /* "Pressed" feel */
+    box-shadow: none;
+}
+
+.toolbar button {
+    border-radius: 5px;
+}
+
+.stat-pill {
+    background: rgba(0,0,0,0.2); /* Inset darker area for stats */
+    border: 2px solid #5e3a24;
+    padding: 2px 10px;
+    border-radius: 0; /* Square/Pixel feel */
+    color: #ffd700;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    border-radius: 5px;
 }
