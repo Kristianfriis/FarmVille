@@ -47,7 +47,33 @@
     z-index: 1;
 }
 
+.crop-layer {
+    position: absolute;
+    top: -24px; /* Adjust this value to set the height of the lift */
+    left: 0;
+    pointer-events: none; /* Clicks pass through to the tile below */
+    z-index: 2;
+}
+
+.tile {
+    position: relative; /* Essential for .crop-layer positioning */
+    width: 64px;
+    height: 64px;
+}
+
+.crop-layer:active {
+    filter: brightness(0.8);
+    /* transform: scale(0.95); */
+    transition: transform 0.05s;
+}
+
 .tile:active {
+    filter: brightness(0.8);
+    /* transform: scale(0.95); */
+    transition: transform 0.05s;
+}
+
+.crop-layer .tile:hover {
     filter: brightness(0.8);
     /* transform: scale(0.95); */
     transition: transform 0.05s;
@@ -57,9 +83,7 @@
     outline: 3px solid #ffd700;
     outline-offset: -3px;
     z-index: 5;
-    box-shadow: 0px 0px 23px 10px #ffd700;
--webkit-box-shadow: 0px 0px 23px 10px #ffd700;
--moz-box-shadow: 0px 0px 23px 10px #ffd700;
+     filter: brightness(1.4);
 }
 
 .tile.plowed {
@@ -68,47 +92,9 @@
 
 .tile.withered {
     background: #4b3621;
+    filter: brightness(0.4);
 }
 
-.tile-tooltip {
-    display: none;
-    position: absolute;
-    bottom: 110%; /* Lift it slightly higher above the tile */
-    left: 50%;
-    transform: translateX(-50%); /* Center it over the tile */
-    
-    /* Wooden Palette */
-    background: #a0522d; /* Sienna / Medium wood */
-    color: #fdf5e6;    /* Old Lace / Off-white text */
-    
-    /* The "Pixel Art" Border */
-    padding: 6px 10px;
-    border: 2px solid #5e3a24; /* Dark wood frame */
-    box-shadow: 
-        inset 1px 1px 0px #cd853f,  /* Top-left inner highlight (light wood) */
-        3px 3px 0px rgba(0,0,0,0.4); /* Chunky pixel shadow */
-
-    font-size: 0.8rem;
-    font-weight: bold;
-    white-space: nowrap;
-    z-index: 1000;
-    pointer-events: none; /* Prevents tooltip from blocking clicks */
-    
-    /* Retro smoothing */
-    image-rendering: pixelated;
-    text-shadow: 1px 1px 0px #5e3a24; /* Outline for text readability */
-}
-
-.tile-tooltip::after {
-    content: "";
-    position: absolute;
-    top: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    border-width: 6px;
-    border-style: solid;
-    border-color: #5e3a24 transparent transparent transparent;
-}
 
 .tile:hover .tile-tooltip {
     display: block;
@@ -158,4 +144,26 @@
     justify-content: center;
     background: #5e3a24; /* Background for the seed bag */
     border: 2px solid #8b4513;
+}
+
+.shadow-layer {
+    position: absolute;
+    bottom: 4px; /* Sits at the bottom of the tile */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 32px; /* Slightly smaller than the tile */
+    height: 12px;
+    background: rgba(0, 0, 0, 0.3); /* Transparent black */
+    border-radius: 50%; /* Creates the oval shape */
+    z-index: 1;
+    pointer-events: none;
+}
+
+.ready .crop-layer {
+    animation: ready-bounce 1s infinite ease-in-out;
+}
+
+@keyframes ready-bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-4px); } /* Slight extra lift */
 }

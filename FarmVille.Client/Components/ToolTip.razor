@@ -1,0 +1,10 @@
+﻿<div class="game-tooltip-container">
+    <div class="game-tooltip-box">
+        @ChildContent
+    </div>
+    <div class="tooltip-arrow"></div>
+</div>
+
+@code {
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+}

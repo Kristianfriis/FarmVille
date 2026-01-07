@@ -1,0 +1,54 @@
+.game-tooltip-container {
+    position: absolute;
+    top: -30px; /* Positions it above the crop layer */
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000; /* Ensure it's above all tiles */
+    pointer-events: none; /* Don't block clicks to the tile */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: max-content;
+
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.1s ease-in-out, transform 0.1s ease-in-out;
+    transform: translate(-50%, 5px); /* Start slightly lower */
+}
+
+.game-tooltip-box {
+    background: #5e3a24; /* Dark Wood */
+    color: #ffd700;     /* Golden Text */
+    border: 2px solid #cd853f; /* Lighter Wood border */
+    padding: 4px 8px;
+    font-family: 'VT323', monospace;
+    font-size: 1rem;
+    white-space: nowrap;
+    box-shadow: 3px 3px 0px rgba(0,0,0,0.4); /* Pixel shadow */
+    image-rendering: pixelated;
+}
+
+.tooltip-arrow {
+    width: 0;
+    height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 6px solid #cd853f; /* Matches border color */
+    margin-top: -1px; /* Stitch it to the box */
+}
+
+.game-tooltip-container {
+    animation: tooltip-float 2s infinite ease-in-out;
+}
+
+@keyframes tooltip-float {
+    0%, 100% { transform: translate(-50%, 0px); }
+    50% { transform: translate(-50%, -4px); }
+}
+
+.tile:hover .game-tooltip-container,
+.tile:active .game-tooltip-container,
+.tile.highlighted .game-tooltip-container {
+    opacity: 1;
+    transform: translate(-50%, 0); /* Slide into place */
+}

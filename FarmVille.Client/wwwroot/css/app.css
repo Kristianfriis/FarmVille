@@ -196,8 +196,6 @@ code {
     transform: translateY(2px);
 }
 
-
-
 .sprite {
     /* Set the actual physical size to 64px */
     width: 64px; 
@@ -213,6 +211,7 @@ code {
     image-rendering: pixelated;
     background-repeat: no-repeat;
     display: inline-block;
+    filter: drop-shadow(2px 2px 0px rgba(0,0,0,0.2));
     
     /* Remove this! It's what's causing the layout math to break */
     /* transform: scale(4); */
