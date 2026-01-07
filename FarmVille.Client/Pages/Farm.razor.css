@@ -73,6 +73,15 @@
     transition: transform 0.05s;
 }
 
+.tile:hover, 
+.tile:active, 
+.tile.highlighted {
+    z-index: 999 !important;
+        filter: brightness(0.8);
+    /* transform: scale(0.95); */
+    transition: transform 0.05s;
+}
+
 .crop-layer .tile:hover {
     filter: brightness(0.8);
     /* transform: scale(0.95); */
