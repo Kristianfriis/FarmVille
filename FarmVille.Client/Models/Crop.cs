@@ -14,4 +14,5 @@ public class Crop
         public TileType Stage1Type {get; set;}
         public TileType Stage2Type {get; set;}
         public TileType ReadyType {get; set;}
+        public int DaysToWither { get; set; } = 1;
     }

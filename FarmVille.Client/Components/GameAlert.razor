@@ -1,0 +1,19 @@
+﻿@if (IsVisible)
+{
+    <div class="alert-overlay">
+        <div class="woody-panel alert-box">
+            <div class="alert-content">
+                @Message
+            </div>
+            <button class="game-button" @onclick="Close">OK</button>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public bool IsVisible { get; set; }
+    [Parameter] public string Message { get; set; } = "";
+    [Parameter] public EventCallback OnClose { get; set; }
+
+    private async Task Close() => await OnClose.InvokeAsync();
+}

@@ -12,7 +12,7 @@
         <div class="farm-grid" style="grid-template-columns: repeat(20, 64px);">
             @foreach (var tile in FarmGrid)
             {
-                <div class="tile @tile.Status.ToString().ToLower() @(MarkSelectedTile(tile)) cell"
+                <div class="tile @tile.Status.ToString().ToLower() @(MarkSelectedTile(tile)) @(IsWorkingOnTile(tile)) cell"
                     style="grid-column: @(tile.X + 1); grid-row: @(tile.Y + 1); z-index: @(tile.Y);"
                     @onclick="() => HandleTileClick(tile)" @onclick:stopPropagation>
 
@@ -24,6 +24,13 @@
                     else
                     {
                         <Tile Type="TileType.TilledSoil" />
+                    }
+
+                    @if (tile.CurrentAction != TileAction.None)
+                    {
+                        <ToolTip>
+                            @tile.CurrentAction.ToString().ToUpper() for @(tile.GetActionRemainingTime())
+                        </ToolTip>
                     }
 
                     @* LAYER 2: The Object/Crop (Shifted Up) *@
@@ -79,6 +86,10 @@
     </FooterContent>
 </GameModal>
 
+<GameAlert IsVisible="showAlert" 
+           Message="@alertMessage" 
+           OnClose="() => {showAlert = false; alertMessage = string.Empty;}" />
+
 @code {
     [Parameter] public int FarmId { get; set; }
 
@@ -94,6 +105,11 @@
     private double BaseY = 0;
     private double OffsetX = 0;
     private double OffsetY = 0;
+    private int CurrentTasks = 0;
+    private const int MaxConcurrentTasks = 3;
+
+    private bool showAlert;
+    private string alertMessage = "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -147,10 +163,25 @@
     {
         while (true)
         {
-            foreach (var t in FarmGrid)
+          foreach (var tile in FarmGrid)
             {
-                t.UpdateState();
+                if (tile.CurrentAction != TileAction.None)
+                {
+                    var done = tile.UpdateActionProgress();
+                    if (done)
+                    {
+                        tile.CurrentAction = TileAction.None;
+                        tile.ActionDuration = 0;
+                        CurrentTasks = Math.Max(0, CurrentTasks - 1);
+                        await SaveGame();
+                    }
+                }
+                else
+                {
+                    tile.UpdateState(); // Handle growth if already planted
+                }
             }
+
             StateHasChanged();
             await Task.Delay(1000);
         }
@@ -158,6 +189,8 @@
 
     private async Task HandleTileClick(FarmTile tile)
     {
+        if (tile.CurrentAction != TileAction.None) return;
+
         if (CurrentTool == FarmTool.Pointer && SelectedTile == tile)
         {
             SelectedTile = null;
@@ -170,10 +203,25 @@
                 // Only plow if it's grass or withered
                 if ((tile.Status == TileStatus.Grass || tile.Status == TileStatus.Withered) && Coins >= 15)
                 {
-                    tile.Status = TileStatus.Plowed;
-                    tile.CurrentCrop = null;
+                    if (Coins < 15)
+                    {
+                        alertMessage = "You don't have enough coins to plow this tile! (Cost: 15)";
+                        showAlert = true;
+                        return;
+                    }
+
+                    if (CurrentTasks >= MaxConcurrentTasks)
+                    {
+                        showAlert = true;
+                        alertMessage = "You are already working on the maximum number of tasks!";
+                        
+                        return;
+                    }
+
+                    tile.StartAction(TileAction.Plowing, 300, 15, 1);
+                    
+                    CurrentTasks++;
                     Coins -= 15;
-                    XP += 1;
 
                     await SaveGame();
                 }
@@ -230,6 +278,9 @@
     private string MarkSelectedTile(FarmTile tile) =>
     tile == SelectedTile ? "highlighted" : "";
 
+    private string IsWorkingOnTile(FarmTile tile) =>
+    tile.CurrentAction != TileAction.None ? "working-tile" : "";
+
     private async Task PlantCrop(Crop crop)
     {
         if (SelectedTile != null)
@@ -248,7 +299,7 @@
 
     private async Task SaveGame()
     {
-        await FarmService.SaveFarm(FarmId, new FarmSaveData { Coins = Coins, XP = XP, Grid = FarmGrid });
+        await FarmService.SaveFarm(FarmId, new FarmSaveData { Coins = Coins, XP = XP, Grid = FarmGrid, CurrentTasks = CurrentTasks });
     }
 
     private async Task<bool> LoadGame()
@@ -260,6 +311,7 @@
             FarmGrid = save.Grid.OrderBy(t => t.Y).ThenBy(t => t.X).ToList();
             Coins = save.Coins;
             XP = save.XP;
+            CurrentTasks = save.CurrentTasks;
 
             return true;
         }

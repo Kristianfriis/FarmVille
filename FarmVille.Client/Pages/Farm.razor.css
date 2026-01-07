@@ -1,4 +1,4 @@
-.farm-viewport {
+﻿.farm-viewport {
     width: 100vw;
     height: 100vh; /* Adjust based on your HUD/Toolbar height */
     overflow: hidden;
@@ -91,7 +91,6 @@
 .tile.highlighted {
     outline: 3px solid #ffd700;
     outline-offset: -3px;
-    z-index: 5;
      filter: brightness(1.4);
 }
 
@@ -175,4 +174,9 @@
 @keyframes ready-bounce {
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-4px); } /* Slight extra lift */
+}
+
+.working-tile {
+    filter: brightness(0.4);
+    filter: contrast(0.4);
 }
