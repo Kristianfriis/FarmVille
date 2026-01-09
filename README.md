@@ -66,7 +66,7 @@ dotnet watch run
 
 - [ ] Animations: Floating "+5 XP" text on harvest and "Level Up" fanfares.
 
-- [ x ] Art Assets: Replace Emojis with custom Sprite Sheets.
+- [x] Art Assets: Replace Emojis with custom Sprite Sheets.
 
 - [ ] Watering Mechanic: Add a Watering Can tool to speed up growth rates.
 
