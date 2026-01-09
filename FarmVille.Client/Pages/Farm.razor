@@ -4,6 +4,9 @@
 @inject GameState GameState
 @inject NavigationManager Nav
 @inject IJSRuntime JSRuntime
+@inject SnackbarService Snackbar
+
+@implements IDisposable
 
 <GameHud FarmId="FarmId" Coins="Coins" XP="XP" OnSaveGame="SaveGame" />
 
@@ -17,48 +20,61 @@
                     style="grid-column: @(tile.X + 1); grid-row: @(tile.Y + 1); z-index: @(tile.Y);"
                     @onclick="() => HandleTileClick(tile)" @onclick:stopPropagation>
 
-                    @* LAYER 1: The Ground *@
-                    @if (tile.Status == TileStatus.Grass)
+                    @if (tile.BuildingType == "Barn")
                     {
-                        <Tile Type="TileType.Grass" />
+                        <div class="barn-visual">
+                            <div class="barn-roof"></div>
+                            <div class="barn-doors"></div>
+                            <div class="barn-shadow"></div>
+                        </div>
+                        <div class="building-label">THE BARN</div>
                     }
                     else
                     {
-                        <Tile Type="TileType.TilledSoil" />
+                        @* LAYER 1: The Ground *@
+                            @if (tile.Status == TileStatus.Grass)
+                        {
+                            <Tile Type="TileType.Grass" />
+                        }
+                        else
+                        {
+                            <Tile Type="TileType.TilledSoil" />
+                        }
+
+                        @if (tile.CurrentAction != TileAction.None)
+                        {
+                            <ToolTip>
+                                @tile.CurrentAction.ToString().ToUpper() for @(tile.GetActionRemainingTime())
+                            </ToolTip>
+                        }
+
+                        @* LAYER 2: The Object/Crop (Shifted Up) *@
+                        <div class="crop-layer">
+                            @if (tile.Status == TileStatus.Planted)
+                            {
+                                <Tile Type="tile.CurrentCrop!.Stage1Type" />
+                                @* <div class="tile-tooltip">@tile.CurrentCrop!.Name</div> *@
+                                }
+                            else if (tile.Status == TileStatus.Ready)
+                            {
+                                <Tile Type="tile.CurrentCrop!.ReadyType" />
+                                <ToolTip>Ready</ToolTip>
+                            }
+                            else if (tile.Status == TileStatus.Withered)
+                            {
+                                <Tile Type="tile.CurrentCrop!.Stage1Type" />
+                                <ToolTip>Withered</ToolTip>
+                            }
+                            @* Add other overlays like Chickens or Trees here *@
+                        </div>
+
+                        @* LAYER 3: UI/Tooltips *@
+                            @if (tile.Status == TileStatus.Planted)
+                        {
+                            <ToolTip>@tile.CurrentCrop!.Name @tile.GetTimeRemaining()</ToolTip>
+                        }
                     }
 
-                    @if (tile.CurrentAction != TileAction.None)
-                    {
-                        <ToolTip>
-                            @tile.CurrentAction.ToString().ToUpper() for @(tile.GetActionRemainingTime())
-                        </ToolTip>
-                    }
-
-                    @* LAYER 2: The Object/Crop (Shifted Up) *@
-                    <div class="crop-layer">
-                        @if (tile.Status == TileStatus.Planted)
-                        {
-                            <Tile Type="tile.CurrentCrop!.Stage1Type" />
-                            @* <div class="tile-tooltip">@tile.CurrentCrop!.Name</div> *@
-                        }
-                        else if (tile.Status == TileStatus.Ready)
-                        {
-                            <Tile Type="tile.CurrentCrop!.ReadyType" />
-                            <ToolTip>Ready</ToolTip>
-                        }
-                        else if (tile.Status == TileStatus.Withered)
-                        {
-                            <Tile Type="tile.CurrentCrop!.Stage1Type" />
-                            <ToolTip>Withered</ToolTip>
-                        }
-                        @* Add other overlays like Chickens or Trees here *@
-                    </div>
-
-                    @* LAYER 3: UI/Tooltips *@
-                    @if (tile.Status == TileStatus.Planted)
-                    {
-                        <ToolTip>@tile.CurrentCrop!.Name @tile.GetTimeRemaining()</ToolTip>
-                    }
                 </div>
             }
         </div>
@@ -67,7 +83,7 @@
 
 <Toolbar CurrentTool="CurrentTool" OnToolChange="ChangeTool" />
 
-<GameModal Visible="ShowMarket" Title="SEED MARKET" OnClose="() => ShowMarket = false">
+<GameModal Visible="ShowMarket" Title="SEED MARKET" OnClose="() => { ShowMarket = false; SelectedTile = null; }">
     <ChildContent>
         <div class="market-grid">
             @foreach (var crop in Crops)
@@ -81,18 +97,20 @@
     </ChildContent>
 
     <FooterContent>
-        <Button Type="ButtonType.Danger" OnClick="() => {ShowMarket = false; SelectedTile = null;}">
+        <Button Type="ButtonType.Danger" OnClick="() => { ShowMarket = false; SelectedTile = null; }">
             NEVERMIND
         </Button>
     </FooterContent>
 </GameModal>
 
-<GameAlert IsVisible="showAlert" 
-           Message="@alertMessage" 
-           OnClose="() => {showAlert = false; alertMessage = string.Empty;}" />
+<GameAlert IsVisible="showAlert" Message="@alertMessage"
+    OnClose="() => {showAlert = false; alertMessage = string.Empty;}" />
+
+<Barn @ref="BarnRef"></Barn>
 
 @code {
     [Parameter] public int FarmId { get; set; }
+    Barn? BarnRef;
 
     private FarmTool CurrentTool = FarmTool.Pointer;
     private int Coins = 100;
@@ -125,9 +143,15 @@
                     FarmGrid.Add(new FarmTile { X = x, Y = y });
                 }
             }
+            var barnTile = FarmGrid.FirstOrDefault(t => t.X == 2 && t.Y == 0);
+            if (barnTile != null)
+            {
+                barnTile.Type = FarmTileType.Building;
+                barnTile.BuildingType = "Barn";
+            }
         }
 
-        Console.WriteLine(FarmGrid.Count);
+        GameState.PlayerInventory.OnCoinChange += () => InvokeAsync(async () => await SaveGame());
 
         StartHeartbeat();
     }
@@ -164,7 +188,7 @@
     {
         while (true)
         {
-          foreach (var tile in FarmGrid)
+            foreach (var tile in FarmGrid)
             {
                 if (tile.CurrentAction != TileAction.None)
                 {
@@ -190,6 +214,15 @@
 
     private async Task HandleTileClick(FarmTile tile)
     {
+        if(tile.Type == FarmTileType.Building)
+        {
+            if(tile.BuildingType == "Barn")
+            {
+                BarnRef?.ToggleBarn();
+            }
+            return;
+        }
+
         if (tile.CurrentAction != TileAction.None) return;
 
         if (CurrentTool == FarmTool.Pointer && SelectedTile == tile)
@@ -215,12 +248,12 @@
                     {
                         showAlert = true;
                         alertMessage = "You are already working on the maximum number of tasks!";
-                        
+
                         return;
                     }
 
                     tile.StartAction(TileAction.Plowing, 300, 15, 1);
-                    
+
                     CurrentTasks++;
                     Coins -= 15;
 
@@ -245,8 +278,10 @@
                     XP += 5;
                     tile.Status = TileStatus.Plowed;
 
-                    GameState.PlayerInventory.AddCrop(tile.CurrentCrop!.ProduceType, 1);
-                    
+                    GameState.PlayerInventory.AddCrop(tile.CurrentCrop!.ProduceType, tile.CurrentCrop!.HarvestAmount);
+
+                    @* Snackbar.Show($"Stored {tile.CurrentCrop!.ProduceType}x {tile.CurrentCrop!.HarvestAmount} in the Barn!", SnackbarType.Success); *@
+
                     tile.CurrentCrop = null;
 
                     await SaveGame();
@@ -327,7 +362,7 @@
             CurrentTasks = save.CurrentTasks;
 
             GameState.PlayerInventory = save.inventory;
-
+            GameState.NotifyGameLoaded();
             return true;
         }
 
@@ -354,5 +389,10 @@
 
         OffsetX = Math.Clamp(OffsetX, minX, maxX);
         OffsetY = Math.Clamp(OffsetY, minY, maxY);
+    }
+
+    public void Dispose()
+    {
+        GameState.PlayerInventory.OnCoinChange -= () => InvokeAsync(async () => await SaveGame());
     }
 }

@@ -1,35 +1,85 @@
 ﻿@implements IDisposable
 @inject GameState GameState
+@inject SnackbarService Snackbar
+@inject CropService CropService
 
-<div class="barn-container woody-panel">
-    <h3><img src="assets/icons/barn.png" class="mini-icon" /> Barn Storage</h3>
-    <div class="inventory-grid">
-        @if (GameState.PlayerInventory.Crops.Count == 0)
-        {
-            <p class="empty-msg">Barn is empty...</p>
-        }
-        else
-        {
-            @foreach (var item in GameState.PlayerInventory.Crops)
-            {
-                <div class="inventory-slot">
-                    <Tile Type="@item.Key" />
-                    <span class="count-badge">@item.Value</span>
-                    <div class="item-name">@item.Key</div>
-                </div>
-            }
-        }
+<div class="barn-sidebar @(IsOpen ? "open" : "")">
+    <div class="barn-container woody-panel">
+        <div class="woody-panel barn-inner">
+            <div class="barn-header" style="display:flex; justify-content:space-between; align-items:center;">
+                <h3 class="barn-title">BARN</h3>
+                <Button OnClick="ToggleBarn" Type="ButtonType.Danger">×</Button>
+            </div>
+            <div class="inventory-scroll">
+                @if (GameState.PlayerInventory.Crops.Count == 0)
+                {
+                    <div class="empty-state">Your barn is empty. Start harvesting!</div>
+                }
+                else
+                {
+                    @foreach (var item in GameState.PlayerInventory.Crops)
+                    {
+                        <div class="inventory-row">
+                            <div class="item-main">
+                                <div class="item-icon">
+                                    <Tile Type="@item.Key" />
+                                </div>
+                                <div class="item-info">
+                                    <span class="item-qty">x @item.Value</span>
+                                </div>
+                            </div>
+
+                            <div class="item-actions">
+                                <div class="price-tag">🪙 @(CropService.GetCropSellValue(item.Key))</div>
+                                <button class="sell-btn" @onclick="() => SellItem(item.Key)">SELL 1</button>
+                                <button class="sell-btn sell-all" @onclick="() => SellItem(item.Key, true)">ALL</button>
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
     </div>
 </div>
 
+
 @code {
+    private bool IsOpen = false;
     protected override void OnInitialized()
     {
         GameState.PlayerInventory.OnCropChange += StateHasChanged;
+        GameState.OnGameLoaded += StateHasChanged;
     }
 
     public void Dispose()
     {
         GameState.PlayerInventory.OnCropChange -= StateHasChanged;
+        GameState.OnGameLoaded -= StateHasChanged;
+    }
+
+    public void ToggleBarn()
+    {
+        IsOpen = !IsOpen;
+        StateHasChanged();
+    }
+
+    private void SellItem(TileType cropName, bool sellAll = false)
+    {
+        if (!GameState.PlayerInventory.Crops.ContainsKey(cropName) || GameState.PlayerInventory.Crops[cropName] <= 0) return;
+
+        int amountToSell = sellAll ? GameState.PlayerInventory.Crops[cropName] : 1;
+        int pricePerUnit = CropService.GetCropSellValue(cropName); // Default 5 if not found
+        int totalGold = amountToSell * pricePerUnit;
+
+        // Update State
+        GameState.PlayerInventory.Crops[cropName] -= amountToSell;
+        if (GameState.PlayerInventory.Crops[cropName] <= 0) GameState.PlayerInventory.Crops.Remove(cropName);
+
+        GameState.PlayerInventory.AddCoins(totalGold);
+
+        // Feedback
+        Snackbar.Show($"Sold {amountToSell}x {cropName} for {totalGold} coins!", SnackbarType.Success);
+
+        StateHasChanged();
     }
 }

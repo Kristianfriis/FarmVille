@@ -2,7 +2,7 @@
 @inject FarmService FarmService
 @inject NavigationManager Nav
 
-<div class="dashboard-container">
+@* <div class="dashboard-container">
     <h1>My Farm Empire</h1>
     
     <div class="slots-container">
@@ -32,6 +32,73 @@
             </div>
         }
     </div>
+</div> *@
+
+<div class="main-menu-container dashboard-bg">
+    <div class="sky-background"></div>
+
+    <div class="title-section">
+        <h1 class="game-title">MY FARMS</h1>
+        <button class="back-btn" @onclick='() => Nav.NavigateTo("/")'>Back to Menu</button>
+    </div>
+
+    <div class="slots-grid">
+        @for (int i = 1; i <= 5; i++)
+        {
+            int slotId = i;
+            <div class="save-slot woody-panel">
+                <div class="slot-header">SLOT @slotId</div>
+
+                @if (LoadedSlots.ContainsKey(slotId))
+                {
+                    var farm = LoadedSlots[slotId];
+                    <div class="slot-info">
+                        <div class="stat-row"><span>🪙</span> @farm.Coins</div>
+                        <div class="stat-row"><span>⭐</span> @farm.XP XP</div>
+
+                        <div class="slot-actions">
+                            <button class="menu-btn primary small" @onclick="() => EnterFarm(slotId)">CONTINUE</button>
+                            <button class="delete-icon-btn" @onclick="() => PromptDelete(slotId)" title="Delete Save">🗑️</button>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                     <div class="slot-info">
+                        <div class="stat-row">
+                            <div class="empty-text">EMPTY PLOT</div>
+                        </div>
+                        <div class="slot-actions">
+                        <button class="menu-btn secondary small" @onclick="() => EnterFarm(slotId)">NEW FARM</button>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+
+    <div class="ground-footer"></div>
+
+    @if (showDeleteConfirm)
+{
+    <div class="modal-overlay">
+        <div class="woody-panel danger-panel confirmation-modal">
+            <div class="modal-header">
+                <h2 class="warning-text">⚠️ WARNING ⚠️</h2>
+            </div>
+            
+            <div class="modal-body text-center">
+                <p class="sub-text">Are you sure you want to bulldoze <strong>Farm Slot @slotToDelete</strong>?</p>
+                <p class="sub-text">This action cannot be undone. All crops and coins will be lost forever!</p>
+            </div>
+
+            <div class="modal-actions">
+                <button class="menu-btn secondary" @onclick="CancelDelete">KEEP IT</button>
+                <button class="menu-btn delete-confirm-btn" @onclick="ConfirmDelete">DELETE</button>
+            </div>
+        </div>
+    </div>
+}
 </div>
 
 @code {
@@ -52,5 +119,30 @@
     {
         await FarmService.DeleteFarm(id);
         LoadedSlots.Remove(id);
+    }
+
+    private bool showDeleteConfirm = false;
+    private int? slotToDelete = null;
+
+    private void PromptDelete(int id)
+    {
+        slotToDelete = id;
+        showDeleteConfirm = true;
+    }
+
+    private void CancelDelete()
+    {
+        slotToDelete = null;
+        showDeleteConfirm = false;
+    }
+
+    private async Task ConfirmDelete()
+    {
+        if (slotToDelete.HasValue)
+        {
+            await DeleteSlot(slotToDelete.Value);
+            CancelDelete();
+            // Use your Snackbar service here if injected!
+        }
     }
 }

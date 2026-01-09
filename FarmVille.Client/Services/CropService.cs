@@ -11,9 +11,26 @@ public class CropService
         new Crop { Name = "Corn", Cost = 25, SellValue = 80, GrowthTime = TimeSpan.FromMinutes(2), IconType = TileType.CornSeed, SeedType = TileType.CornSeed, Stage1Type = TileType.Corn1, ReadyType = TileType.CornRipe, DaysToWither = 3, ProduceType = TileType.Corn },
     };
 
+    private Dictionary<TileType, int> CropPrices = new()
+    {
+        { TileType.Strawberry, 25 },
+        { TileType.Corn, 40 },
+        // { TileType.Potato, 15 },
+        // { TileType.Pumpkin, 60 }
+    };
+
     public List<Crop> GetAllCrops()
     {
         return Crops;
+    }
+
+    public int GetCropSellValue(TileType cropType)
+    {
+        if (CropPrices.ContainsKey(cropType))
+        {
+            return CropPrices[cropType];
+        }
+        return 0;
     }
 
 }

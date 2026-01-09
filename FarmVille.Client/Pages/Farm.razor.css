@@ -207,3 +207,40 @@
     filter: brightness(0.4);
     filter: contrast(0.4);
 }
+
+.building-tile {
+    cursor: pointer;
+    overflow: visible !important; /* Allow the roof to stick out slightly */
+}
+
+.barn-visual {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: #a52a2a; /* Barn Red */
+    border: 3px solid #3e2723;
+    border-radius: 4px;
+    image-rendering: pixelated;
+}
+
+/* Add some pixel-art flair */
+.barn-doors {
+    position: absolute;
+    bottom: 0;
+    left: 20%;
+    width: 60%;
+    height: 40%;
+    background: #5d3a24;
+    border-top: 2px solid #000;
+}
+
+.building-label {
+    position: absolute;
+    bottom: -15px;
+    width: 100%;
+    text-align: center;
+    font-size: 0.7rem;
+    color: white;
+    text-shadow: 1px 1px 0 #000;
+    pointer-events: none;
+}

@@ -1,10 +1,13 @@
 ﻿@inject NavigationManager Nav
+@inject GameState GameState
+
+@implements IDisposable
 
 <div class="game-hud">
     <div class="hud-left">
         <div class="stat-pill coins">
             <span class="icon">💰</span>
-            <span class="value">@Coins.ToString("N0")</span>
+            <span class="value">@GameState.PlayerInventory.Coins.ToString("N0")</span>
         </div>
         <div class="stat-pill xp">
             <span class="icon">⭐</span>
@@ -29,8 +32,18 @@
 
     [Parameter] public EventCallback OnSaveGame { get; set; }
 
+    protected override void OnInitialized()
+    {
+        GameState.PlayerInventory.OnCoinChange += StateHasChanged;
+    }
+
     private async Task SaveGame()
     {
         await OnSaveGame.InvokeAsync();
+    }
+
+    public void Dispose()
+    {
+         GameState.PlayerInventory.OnCoinChange -= StateHasChanged;
     }
 }

@@ -1,0 +1,48 @@
+﻿@inject SnackbarService SnackbarService
+@implements IDisposable
+
+<div class="snackbar-anchor @(isVisible ? "show" : "") @currentType.ToString().ToLower()">
+    <div class="woody-panel snackbar-body">
+        <span class="status-icon">@GetIcon()</span>
+        @currentMessage
+    </div>
+</div>
+
+@code {
+    private bool isVisible;
+    private string currentMessage = "";
+    private SnackbarType currentType;
+    private System.Timers.Timer? timer;
+
+    protected override void OnInitialized()
+    {
+        // Subscribe to the service event
+        SnackbarService.OnShow += HandleShow;
+    }
+
+    private void HandleShow(string message, SnackbarType type)
+    {
+        currentMessage = message;
+        currentType = type;
+        isVisible = true;
+
+        timer?.Stop();
+        timer = new System.Timers.Timer(3000);
+        timer.Elapsed += (s, e) => { 
+            isVisible = false; 
+            InvokeAsync(StateHasChanged);
+            timer.Stop();
+        };
+        timer.Start();
+        
+        InvokeAsync(StateHasChanged);
+    }
+
+    private string GetIcon() => currentType switch {
+        SnackbarType.Error => "❌",
+        SnackbarType.Info => "ℹ️",
+        _ => "✅"
+    };
+
+    public void Dispose() => SnackbarService.OnShow -= HandleShow;
+}

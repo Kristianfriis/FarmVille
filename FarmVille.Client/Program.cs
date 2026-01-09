@@ -14,5 +14,6 @@ builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddScoped<FarmService>();
 builder.Services.AddScoped<CropService>();
 builder.Services.AddSingleton<GameState>();
+builder.Services.AddScoped<SnackbarService>();
 
 await builder.Build().RunAsync();
