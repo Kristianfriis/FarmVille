@@ -2,39 +2,70 @@
 @inject NavigationManager Nav
 
 <div class="main-menu-container">
-    <div class="title-section">
-        <h1 class="game-title">BLAZOR VILLE</h1>
-        <p class="tagline">The ultimate C# farming simulator</p>
+    <div class="sky-background">
+        <div class="clouds"></div>
     </div>
 
-    <div class="menu-actions">
+    <div class="title-section">
+        <h1 class="game-title">BLAZOR VILLE</h1>
+        <div class="title-subtitle">LEST GET FARMING</div>
+    </div>
+
+    <div class="menu-actions woody-panel">
         <button class="menu-btn primary" @onclick='() => Nav.NavigateTo("/dashboard")'>
-            <span class="icon">🚜</span> PLAY GAME
+            <span class="btn-text">PLAY GAME</span>
         </button>
         
         <button class="menu-btn secondary" @onclick="ToggleHowTo">
-            <span class="icon">📖</span> HOW TO PLAY
+            <span class="btn-text">HOW TO PLAY</span>
         </button>
-
+        
         <button class="menu-btn secondary" @onclick="ToggleCredits">
-            <span class="icon">📜</span> CREDITS
+            <span class="btn-text">CREDITS</span>
         </button>
     </div>
 
-    @if (showHowTo)
+    <div class="ground-footer"></div>
+        @if (showHowTo)
     {
-        <div class="modal-overlay" @onclick="ToggleHowTo">
-            <div class="modal-content" @onclick:stopPropagation="true">
-                <h2>How to Play</h2>
-                <ul>
-                    <li>🚜 **Plow** grass to prepare the soil.</li>
-                    <li>🌱 **Plant** seeds from the market.</li>
-                    <li>🌽 **Harvest** crops before they wither!</li>
-                    <li>💰 **Earn** coins to expand your empire.</li>
-                </ul>
-                <button @onclick="ToggleHowTo">Got it!</button>
+      <div class="modal-overlay" @onclick="ToggleHowTo">
+        <div class="woody-panel modal-content" @onclick:stopPropagation="true">
+            <div class="modal-header">
+                <h2>HOW TO PLAY</h2>
             </div>
+            
+            <div class="modal-body">
+                <div class="guide-item">
+                    <span class="guide-icon">🚜</span>
+                    <div class="guide-text">
+                        <strong>PLOW:</strong> Prepare the wild grass for planting.
+                    </div>
+                </div>
+                <div class="guide-item">
+                    <span class="guide-icon">🌱</span>
+                    <div class="guide-text">
+                        <strong>PLANT:</strong> SOW seeds into your freshly plowed soil.
+                    </div>
+                </div>
+                <div class="guide-item">
+                    <span class="guide-icon">🌽</span>
+                    <div class="guide-text">
+                        <strong>HARVEST:</strong> Collect crops before they wither!
+                    </div>
+                </div>
+                <div class="guide-item">
+                    <span class="guide-icon">💰</span>
+                    <div class="guide-text">
+                        <strong>EARN:</strong> Visit the Barn to sell produce for coins.
+                    </div>
+                </div>
+            </div>
+
+            <button class="menu-btn primary modal-close-btn" @onclick="ToggleHowTo">
+                GOT IT!
+            </button>
         </div>
+    </div>
     }
 </div>
 

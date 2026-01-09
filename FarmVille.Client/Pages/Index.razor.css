@@ -1,69 +1,161 @@
 ﻿.main-menu-container {
-    height: 100vh;
-    background: linear-gradient(to bottom, #87CEEB 0%, #4e9e4e 100%); /* Sky to Grass */
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
+        height: 100vh;
+        background: #4e9e4e; /* Grass green */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        font-family: 'VT323', monospace;
+        overflow: hidden;
+        position: relative;
+    }
 
-.game-title {
-    font-size: 4rem;
-    color: white;
-    text-shadow: 4px 4px 0px #5e3a24;
-    margin-bottom: 0;
-    letter-spacing: 2px;
-}
+    .sky-background {
+        position: absolute;
+        top: 0; width: 100%; height: 60%;
+        background: #87CEEB; /* Sky blue */
+        z-index: 1;
+    }
 
-.menu-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    margin-top: 30px;
-    width: 300px;
-}
+    .title-section {
+        z-index: 10;
+        text-align: center;
+        margin-bottom: 40px;
+    }
 
-.menu-btn {
-    padding: 15px;
-    font-size: 1.2rem;
-    font-weight: bold;
-    border-radius: 50px; /* Pill shape */
-    border: 3px solid #fff;
-    cursor: pointer;
-    transition: transform 0.1s, box-shadow 0.1s;
-}
+    .game-title {
+        font-size: 6rem;
+        color: #ffd700; /* Gold */
+        text-shadow: 
+            6px 6px 0px #5e3a24,
+            -2px -2px 0px #000,
+            2px -2px 0px #000,
+            -2px 2px 0px #000,
+            2px 2px 0px #000;
+        margin: 0;
+        letter-spacing: 4px;
+        line-height: 0.8;
+    }
 
-.menu-btn.primary {
-    background: #ffd700;
-    color: #5e3a24;
-}
+    .title-subtitle {
+        color: white;
+        font-size: 1.5rem;
+        text-shadow: 2px 2px 0px #000;
+    }
 
-.menu-btn.secondary {
-    background: rgba(255, 255, 255, 0.2);
-    color: white;
-}
+    .woody-panel {
+        background: #8b4513;
+        border: 6px solid #5e3a24;
+        padding: 30px;
+        box-shadow: inset 4px 4px 0px #a0522d, 8px 8px 0px rgba(0,0,0,0.3);
+        z-index: 10;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        width: 320px;
+    }
 
-.menu-btn:hover {
-    transform: scale(1.05);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-}
+    .menu-btn {
+        padding: 15px;
+        font-size: 1.8rem;
+        font-family: 'VT323', monospace;
+        border: 4px solid #000;
+        cursor: pointer;
+        position: relative;
+        transition: transform 0.1s;
+        image-rendering: pixelated;
+    }
 
-.modal-overlay {
+    .menu-btn.primary {
+        background: #4caf50;
+        color: white;
+        box-shadow: inset -4px -4px 0px #2e7d32;
+    }
+
+    .menu-btn.secondary {
+        background: #cd853f;
+        color: #5e3a24;
+        box-shadow: inset -4px -4px 0px #8b4513;
+    }
+
+    .menu-btn:hover {
+        transform: scale(1.05) translateY(-2px);
+    }
+
+    .menu-btn:active {
+        transform: scale(0.98) translateY(2px);
+    }
+
+    .ground-footer {
+        position: absolute;
+        bottom: 0; width: 100%; height: 10%;
+        background: #3e2723; /* Dirt color */
+        border-top: 8px solid #2e7d32; /* Grass edge */
+        z-index: 2;
+    }
+
+    .modal-overlay {
     position: fixed;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.5);
-    display: flex; justify-content: center; align-items: center;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(0, 0, 0, 0.8); /* Darker backdrop for focus */
+    display: flex; 
+    justify-content: center; 
+    align-items: center;
+    z-index: 100;
+    backdrop-filter: blur(2px); /* Softens the background */
 }
 
 .modal-content {
-    background: white;
+    max-width: 450px;
+    width: 90%;
+    /* Same woody-panel styling as your menu but with specific padding */
     padding: 30px;
-    border-radius: 20px;
-    max-width: 400px;
+    animation: modalPop 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
 }
 
-.title-section {
+.modal-header h2 {
+    color: #ffd700;
     text-align: center;
-    margin-bottom: 20px;
+    font-size: 2.5rem;
+    margin-top: 0;
+    text-shadow: 3px 3px 0px #000;
+}
+
+.modal-body {
+    margin: 20px 0;
+}
+
+.guide-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background: rgba(0, 0, 0, 0.2);
+    margin-bottom: 12px;
+    padding: 12px;
+    border-left: 4px solid #ffd700;
+}
+
+.guide-icon {
+    font-size: 2rem;
+}
+
+.guide-text {
+    color: #fdf5e6;
+    font-size: 1.2rem;
+    line-height: 1.2;
+}
+
+.guide-text strong {
+    color: #ffd700;
+    display: block;
+}
+
+.modal-close-btn {
+    width: 100%;
+    margin-top: 10px;
+}
+
+@keyframes modalPop {
+    0% { transform: scale(0.8); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
 }

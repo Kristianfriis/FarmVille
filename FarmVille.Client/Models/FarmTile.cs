@@ -1,12 +1,20 @@
 ﻿namespace FarmVille.Client.Models;
 
 public enum TileAction { None, Plowing, Sowing, Harvesting }
+public enum CropStage
+{
+    None, Stage1, Stage2, Ready
+}
+
+public enum FarmTileType { Field, Building }
 
 public class FarmTile
 {
     public int X { get; set; }
     public int Y { get; set; }
 
+    public FarmTileType Type { get; set; } = FarmTileType.Field;
+    public string? BuildingType { get; set; } // e.g., "Barn"
     public TileAction CurrentAction { get; set; } = TileAction.None;
     public TileAction QueuedAction { get; set; }
     public double ActionProgress { get; set; } = 0;
