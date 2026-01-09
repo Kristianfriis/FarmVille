@@ -1,6 +1,7 @@
 ﻿@page "/Farm/{FarmId:int}"
 @inject FarmService FarmService
 @inject CropService CropService
+@inject GameState GameState
 @inject NavigationManager Nav
 @inject IJSRuntime JSRuntime
 
@@ -243,6 +244,9 @@
                     Coins += tile.CurrentCrop?.SellValue ?? 0;
                     XP += 5;
                     tile.Status = TileStatus.Plowed;
+
+                    GameState.PlayerInventory.AddCrop(tile.CurrentCrop!.ProduceType, 1);
+                    
                     tile.CurrentCrop = null;
 
                     await SaveGame();
@@ -299,7 +303,16 @@
 
     private async Task SaveGame()
     {
-        await FarmService.SaveFarm(FarmId, new FarmSaveData { Coins = Coins, XP = XP, Grid = FarmGrid, CurrentTasks = CurrentTasks });
+        var farmData = new FarmSaveData
+        {
+            Coins = Coins,
+            XP = XP,
+            Grid = FarmGrid,
+            CurrentTasks = CurrentTasks,
+            inventory = GameState.PlayerInventory
+        };
+
+        await FarmService.SaveFarm(FarmId, farmData);
     }
 
     private async Task<bool> LoadGame()
@@ -312,6 +325,8 @@
             Coins = save.Coins;
             XP = save.XP;
             CurrentTasks = save.CurrentTasks;
+
+            GameState.PlayerInventory = save.inventory;
 
             return true;
         }

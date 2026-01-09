@@ -13,5 +13,6 @@ builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.
 builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddScoped<FarmService>();
 builder.Services.AddScoped<CropService>();
+builder.Services.AddSingleton<GameState>();
 
 await builder.Build().RunAsync();

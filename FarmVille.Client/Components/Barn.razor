@@ -1,0 +1,35 @@
+﻿@implements IDisposable
+@inject GameState GameState
+
+<div class="barn-container woody-panel">
+    <h3><img src="assets/icons/barn.png" class="mini-icon" /> Barn Storage</h3>
+    <div class="inventory-grid">
+        @if (GameState.PlayerInventory.Crops.Count == 0)
+        {
+            <p class="empty-msg">Barn is empty...</p>
+        }
+        else
+        {
+            @foreach (var item in GameState.PlayerInventory.Crops)
+            {
+                <div class="inventory-slot">
+                    <Tile Type="@item.Key" />
+                    <span class="count-badge">@item.Value</span>
+                    <div class="item-name">@item.Key</div>
+                </div>
+            }
+        }
+    </div>
+</div>
+
+@code {
+    protected override void OnInitialized()
+    {
+        GameState.PlayerInventory.OnCropChange += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        GameState.PlayerInventory.OnCropChange -= StateHasChanged;
+    }
+}
