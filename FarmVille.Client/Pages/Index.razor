@@ -1,5 +1,8 @@
 ﻿@page "/"
 @inject NavigationManager Nav
+@inject FarmService FarmService
+
+<LoadingOverlay IsVisible="Loading" />
 
 <div class="main-menu-container">
     <div class="sky-background">
@@ -8,10 +11,17 @@
 
     <div class="title-section">
         <h1 class="game-title">BLAZOR VILLE</h1>
-        <div class="title-subtitle">LEST GET FARMING</div>
+        <div class="title-subtitle">LETS GET FARMING</div>
     </div>
 
     <div class="menu-actions woody-panel">
+        @if(showContinue)
+        {
+                     <button class="menu-btn primary" @onclick='NavigateToLastFarm'>
+            <span class="btn-text">CONTINUE</span>
+        </button>
+        }
+
         <button class="menu-btn primary" @onclick='() => Nav.NavigateTo("/dashboard")'>
             <span class="btn-text">PLAY GAME</span>
         </button>
@@ -70,6 +80,31 @@
 </div>
 
 @code {
+    private bool showContinue = false;
+    private bool Loading = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var lastSlot = await FarmService.LoadLastSaveFarm();
+        if (lastSlot.HasValue)
+        {
+            showContinue = true;
+        }
+    }
+
+    private async Task NavigateToLastFarm()
+    {
+        Loading = true;
+        var lastSlot = await FarmService.LoadLastSaveFarm();
+        if (lastSlot.HasValue)
+        {
+            Nav.NavigateTo($"/farm/{lastSlot.Value}");
+            Loading = false;
+            return;
+        }
+        Loading = false;
+    }
+
     private bool showHowTo = false;
     private void ToggleHowTo() => showHowTo = !showHowTo;
 

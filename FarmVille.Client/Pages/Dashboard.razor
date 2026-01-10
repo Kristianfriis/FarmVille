@@ -78,10 +78,11 @@
     </div>
 
     <div class="ground-footer"></div>
+</div>
 
-    @if (showDeleteConfirm)
+@if (showDeleteConfirm)
 {
-    <div class="modal-overlay">
+    <div class="modal-overlay" @onclick="CancelDelete">
         <div class="woody-panel danger-panel confirmation-modal">
             <div class="modal-header">
                 <h2 class="warning-text">⚠️ WARNING ⚠️</h2>
@@ -99,7 +100,6 @@
         </div>
     </div>
 }
-</div>
 
 @code {
     private Dictionary<int, FarmSaveData> LoadedSlots = new();

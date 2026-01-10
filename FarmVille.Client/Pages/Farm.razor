@@ -6,9 +6,9 @@
 @inject IJSRuntime JSRuntime
 @inject SnackbarService Snackbar
 
-@implements IDisposable
+@implements IAsyncDisposable
 
-<GameHud FarmId="FarmId" Coins="Coins" XP="XP" OnSaveGame="SaveGame" />
+<GameHud FarmId="FarmId" Coins="GameState.PlayerInventory.Coins" XP="XP" OnSaveGame="SaveGame" />
 
 <div id="farm-viewport" class="farm-viewport">
 
@@ -32,7 +32,7 @@
                     else
                     {
                         @* LAYER 1: The Ground *@
-                            @if (tile.Status == TileStatus.Grass)
+                        @if (tile.Status == TileStatus.Grass)
                         {
                             <Tile Type="TileType.Grass" />
                         }
@@ -54,7 +54,7 @@
                             {
                                 <Tile Type="tile.CurrentCrop!.Stage1Type" />
                                 @* <div class="tile-tooltip">@tile.CurrentCrop!.Name</div> *@
-                                }
+                            }
                             else if (tile.Status == TileStatus.Ready)
                             {
                                 <Tile Type="tile.CurrentCrop!.ReadyType" />
@@ -69,7 +69,7 @@
                         </div>
 
                         @* LAYER 3: UI/Tooltips *@
-                            @if (tile.Status == TileStatus.Planted)
+                        @if (tile.Status == TileStatus.Planted)
                         {
                             <ToolTip>@tile.CurrentCrop!.Name @tile.GetTimeRemaining()</ToolTip>
                         }
@@ -113,7 +113,6 @@
     Barn? BarnRef;
 
     private FarmTool CurrentTool = FarmTool.Pointer;
-    private int Coins = 100;
     private int XP = 0;
     private bool ShowMarket = false;
     private FarmTile? SelectedTile;
@@ -126,6 +125,7 @@
     private double OffsetY = 0;
     private int CurrentTasks = 0;
     private const int MaxConcurrentTasks = 3;
+    private DotNetObjectReference<Farm>? _dotNetRef;
 
     private bool showAlert;
     private string alertMessage = "";
@@ -136,6 +136,8 @@
 
         if (!await LoadGame())
         {
+            GameState.PlayerInventory.AddCoins(100);
+
             for (int y = 0; y < 20; y++)
             {
                 for (int x = 0; x < 20; x++)
@@ -149,6 +151,8 @@
                 barnTile.Type = FarmTileType.Building;
                 barnTile.BuildingType = "Barn";
             }
+
+            await SaveGame();
         }
 
         GameState.PlayerInventory.OnCoinChange += () => InvokeAsync(async () => await SaveGame());
@@ -158,12 +162,16 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
-        {
-            // Pass a reference to this C# component to JS
-            var dotNetHelper = DotNetObjectReference.Create(this);
-            await JSRuntime.InvokeVoidAsync("initFarmPan", dotNetHelper, "farm-viewport");
-        }
+        if (!firstRender)
+            return;
+
+        _dotNetRef = DotNetObjectReference.Create(this);
+
+        await JSRuntime.InvokeVoidAsync(
+                        "initFarmPan",
+        _dotNetRef,
+                        "farm-viewport"
+        );
     }
 
     [JSInvokable]
@@ -214,9 +222,9 @@
 
     private async Task HandleTileClick(FarmTile tile)
     {
-        if(tile.Type == FarmTileType.Building)
+        if (tile.Type == FarmTileType.Building)
         {
-            if(tile.BuildingType == "Barn")
+            if (tile.BuildingType == "Barn")
             {
                 BarnRef?.ToggleBarn();
             }
@@ -235,9 +243,9 @@
         {
             case FarmTool.Plow:
                 // Only plow if it's grass or withered
-                if ((tile.Status == TileStatus.Grass || tile.Status == TileStatus.Withered) && Coins >= 15)
+                if ((tile.Status == TileStatus.Grass || tile.Status == TileStatus.Withered) && GameState.PlayerInventory.Coins >= 15)
                 {
-                    if (Coins < 15)
+                    if (GameState.PlayerInventory.Coins < 15)
                     {
                         alertMessage = "You don't have enough coins to plow this tile! (Cost: 15)";
                         showAlert = true;
@@ -255,7 +263,7 @@
                     tile.StartAction(TileAction.Plowing, 300, 15, 1);
 
                     CurrentTasks++;
-                    Coins -= 15;
+                    GameState.PlayerInventory.RemoveCoins(15);
 
                     await SaveGame();
                 }
@@ -274,7 +282,6 @@
                 SelectedTile = tile;
                 if (tile.Status == TileStatus.Ready)
                 {
-                    Coins += tile.CurrentCrop?.SellValue ?? 0;
                     XP += 5;
                     tile.Status = TileStatus.Plowed;
 
@@ -327,7 +334,7 @@
             SelectedTile.CurrentCrop = crop;
             SelectedTile.PlantedAt = DateTime.Now;
             SelectedTile.Status = TileStatus.Planted;
-            Coins -= crop.Cost;
+            GameState.PlayerInventory.RemoveCoins(crop.Cost);
         }
 
         await SaveGame();
@@ -340,7 +347,7 @@
     {
         var farmData = new FarmSaveData
         {
-            Coins = Coins,
+            Coins = GameState.PlayerInventory.Coins,
             XP = XP,
             Grid = FarmGrid,
             CurrentTasks = CurrentTasks,
@@ -357,7 +364,7 @@
         if (save is not null)
         {
             FarmGrid = save.Grid.OrderBy(t => t.Y).ThenBy(t => t.X).ToList();
-            Coins = save.Coins;
+
             XP = save.XP;
             CurrentTasks = save.CurrentTasks;
 
@@ -391,8 +398,22 @@
         OffsetY = Math.Clamp(OffsetY, minY, maxY);
     }
 
-    public void Dispose()
+    public async ValueTask DisposeAsync()
     {
         GameState.PlayerInventory.OnCoinChange -= () => InvokeAsync(async () => await SaveGame());
+
+        try
+        {
+            await JSRuntime.InvokeVoidAsync(
+                        "disposeFarmPan",
+                        "farm-viewport"
+            );
+        }
+        catch
+        {
+            // JS runtime may already be gone during shutdown
+        }
+
+        _dotNetRef?.Dispose();
     }
 }

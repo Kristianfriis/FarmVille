@@ -7,6 +7,7 @@ public class FarmService
 {
     private readonly ILocalStorageService _storage;
     private const string ProfileKey = "farm_profile";
+    private const string LastSaveKey = "farm_last_save";
 
     public FarmService(ILocalStorageService storage) => _storage = storage;
 
@@ -21,10 +22,22 @@ public class FarmService
     public async Task SaveFarm(int slotId, FarmSaveData data)
     {
         await _storage.SetItemAsync(GetKey(slotId), data);
+
+        await LastSaveFarm(slotId);
     }
 
     public async Task DeleteFarm(int slotId)
     {
         await _storage.RemoveItemAsync(GetKey(slotId));
+    }
+
+    public async Task LastSaveFarm(int slotId)
+    {
+        await _storage.SetItemAsync(LastSaveKey, slotId);
+    }
+
+    public async Task<int?> LoadLastSaveFarm()
+    {
+        return await _storage.GetItemAsync<int?>(LastSaveKey);
     }
 }

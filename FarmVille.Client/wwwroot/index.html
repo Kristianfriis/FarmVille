@@ -15,7 +15,7 @@
     <link rel="manifest" href="manifest.json" />
     <link rel="icon" href="assets/icons/web/favicon.ico" sizes="any">
     <link rel="apple-touch-icon" href="assets/icons/web/apple-touch-icon.png">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
+    <script src="lib/hammerjs/hammer.min.js"></script>
 </head>
 
 <body>
@@ -55,7 +55,7 @@
             let progress = document.getElementById('blazor-load-progress');
 
             // This is a custom property provided by Blazor WASM
-            window.addEventListener('scroll', () => {}); // placeholder for event listener logic
+            window.addEventListener('scroll', () => { }); // placeholder for event listener logic
 
             // Observe the 'app' element's attributes or use Blazor's JS initializer
             // A simpler way for modern Blazor:
@@ -97,6 +97,16 @@
             mc.on("panmove", (ev) => {
                 dotNetHelper.invokeMethodAsync('OnPanMove', ev.deltaX, ev.deltaY);
             });
+
+            window._farmPan = mc;
+        };
+
+        window.disposeFarmPan = (elementId) => {
+            const el = document.getElementById(elementId);
+            if (!el || !window._farmPan) return;
+
+            window._farmPan.destroy();
+            window._farmPan = null;
         };
     </script>
 </body>
