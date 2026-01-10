@@ -35,6 +35,7 @@
     protected override void OnInitialized()
     {
         GameState.PlayerInventory.OnCoinChange += StateHasChanged;
+        GameState.OnGameLoaded += StateHasChanged;
     }
 
     private async Task SaveGame()
@@ -45,5 +46,6 @@
     public void Dispose()
     {
          GameState.PlayerInventory.OnCoinChange -= StateHasChanged;
+        GameState.OnGameLoaded -= StateHasChanged;
     }
 }
