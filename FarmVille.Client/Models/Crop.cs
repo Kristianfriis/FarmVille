@@ -17,4 +17,5 @@ public class Crop
         public TileType ProduceType {get; set;}
         public int DaysToWither { get; set; } = 1;
         public int HarvestAmount { get; set; } = 1;
+        public int ExperienceGained { get; set; } = 0;
     }

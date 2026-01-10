@@ -7,16 +7,26 @@ namespace FarmVille.Client.Services;
 public class CropService
 {
     private List<Crop> Crops = new() {
-        new Crop { Name = "Strawberries", Cost = 10, SellValue = 35, GrowthTime = TimeSpan.FromSeconds(30),IconType = TileType.StrawberrySeed, SeedType = TileType.StrawberrySeed, Stage1Type = TileType.Strawberry1, ReadyType = TileType.StrawberryRipe, DaysToWither = 2 , ProduceType = TileType.Strawberry },
-        new Crop { Name = "Corn", Cost = 25, SellValue = 80, GrowthTime = TimeSpan.FromMinutes(2), IconType = TileType.CornSeed, SeedType = TileType.CornSeed, Stage1Type = TileType.Corn1, ReadyType = TileType.CornRipe, DaysToWither = 3, ProduceType = TileType.Corn },
-    };
-
-    private Dictionary<TileType, int> CropPrices = new()
-    {
-        { TileType.Strawberry, 25 },
-        { TileType.Corn, 40 },
-        // { TileType.Potato, 15 },
-        // { TileType.Pumpkin, 60 }
+        new Crop { 
+            Name = "Strawberries", 
+            Cost = 10, SellValue = 35, 
+            GrowthTime = TimeSpan.FromSeconds(30),
+            IconType = TileType.StrawberrySeed, 
+            SeedType = TileType.StrawberrySeed, 
+            Stage1Type = TileType.Strawberry1, 
+            ReadyType = TileType.StrawberryRipe, 
+            DaysToWither = 2 , 
+            ProduceType = TileType.Strawberry },
+        new Crop { 
+            Name = "Corn", 
+            Cost = 25, SellValue = 80,
+            GrowthTime = TimeSpan.FromMinutes(2), 
+            IconType = TileType.CornSeed, 
+            SeedType = TileType.CornSeed, 
+            Stage1Type = TileType.Corn1, 
+            ReadyType = TileType.CornRipe, 
+            DaysToWither = 3, 
+            ProduceType = TileType.Corn },
     };
 
     public List<Crop> GetAllCrops()
@@ -26,9 +36,10 @@ public class CropService
 
     public int GetCropSellValue(TileType cropType)
     {
-        if (CropPrices.ContainsKey(cropType))
+        var crop = Crops.FirstOrDefault(c => c.ProduceType == cropType);
+        if (crop != null)
         {
-            return CropPrices[cropType];
+            return crop.SellValue;
         }
         return 0;
     }

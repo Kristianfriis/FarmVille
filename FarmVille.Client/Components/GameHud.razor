@@ -27,7 +27,6 @@
 
 @code {
     [Parameter] public int FarmId { get; set; }
-    [Parameter] public int Coins { get; set; }
     [Parameter] public int XP { get; set; }
 
     [Parameter] public EventCallback OnSaveGame { get; set; }
@@ -45,7 +44,7 @@
 
     public void Dispose()
     {
-         GameState.PlayerInventory.OnCoinChange -= StateHasChanged;
+        GameState.PlayerInventory.OnCoinChange -= StateHasChanged;
         GameState.OnGameLoaded -= StateHasChanged;
     }
 }

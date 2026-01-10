@@ -1,4 +1,5 @@
 ﻿@page "/Farm/{FarmId:int}"
+@using System.Text.Json
 @inject FarmService FarmService
 @inject CropService CropService
 @inject GameState GameState
@@ -8,7 +9,7 @@
 
 @implements IAsyncDisposable
 
-<GameHud FarmId="FarmId" Coins="GameState.PlayerInventory.Coins" XP="XP" OnSaveGame="SaveGame" />
+<GameHud FarmId="FarmId" XP="XP" OnSaveGame="SaveGame" />
 
 <div id="farm-viewport" class="farm-viewport">
 
@@ -86,7 +87,7 @@
 <GameModal Visible="ShowMarket" Title="SEED MARKET" OnClose="() => { ShowMarket = false; SelectedTile = null; }">
     <ChildContent>
         <div class="market-grid">
-            @foreach (var crop in Crops)
+            @foreach (var crop in CropService.GetAllCrops())
             {
                 <div class="market-item" @onclick="() => PlantCrop(crop)">
                     <Tile Type="crop.SeedType" />
@@ -106,7 +107,7 @@
 <GameAlert IsVisible="showAlert" Message="@alertMessage"
     OnClose="() => {showAlert = false; alertMessage = string.Empty;}" />
 
-<Barn @ref="BarnRef"></Barn>
+<Barn @ref="BarnRef" OnCropSell="SaveGame"></Barn>
 
 @code {
     [Parameter] public int FarmId { get; set; }
@@ -117,7 +118,6 @@
     private bool ShowMarket = false;
     private FarmTile? SelectedTile;
     private List<FarmTile> FarmGrid = new();
-    private List<Crop> Crops = new();
 
     private double BaseX = 0; // Store the position where the drag started
     private double BaseY = 0;
@@ -132,7 +132,6 @@
 
     protected override async Task OnInitializedAsync()
     {
-        Crops = CropService.GetAllCrops();
 
         if (!await LoadGame())
         {
@@ -155,7 +154,7 @@
             await SaveGame();
         }
 
-        GameState.PlayerInventory.OnCoinChange += () => InvokeAsync(async () => await SaveGame());
+        @* GameState.PlayerInventory.OnCoinChange += () => InvokeAsync(async () => await SaveGame()); *@
 
         StartHeartbeat();
     }
@@ -347,11 +346,10 @@
     {
         var farmData = new FarmSaveData
         {
-            Coins = GameState.PlayerInventory.Coins,
             XP = XP,
             Grid = FarmGrid,
             CurrentTasks = CurrentTasks,
-            inventory = GameState.PlayerInventory
+            Inventory = GameState.PlayerInventory
         };
 
         await FarmService.SaveFarm(FarmId, farmData);
@@ -368,8 +366,9 @@
             XP = save.XP;
             CurrentTasks = save.CurrentTasks;
 
-            GameState.PlayerInventory = save.inventory;
+            GameState.PlayerInventory = save.Inventory;
             GameState.NotifyGameLoaded();
+
             return true;
         }
 

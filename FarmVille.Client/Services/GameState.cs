@@ -6,6 +6,7 @@ namespace FarmVille.Client.Services;
 
 public class GameState
 {
+    public int PlayerXP { get; set; } = 0;
     public Inventory PlayerInventory { get; set; } = new Inventory();
  
     public event Action? OnGameLoaded;
@@ -15,7 +16,7 @@ public class GameState
 
 public class Inventory
 {
-    public int Coins { get; private set; }
+    public int Coins { get; set; }
     public Dictionary<TileType, int> Crops { get; set; } = new();
 
     public void AddCrop(TileType cropName, int quantity)

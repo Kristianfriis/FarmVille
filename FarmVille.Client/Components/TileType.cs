@@ -39,7 +39,7 @@ public static class SpriteMap
         TileType.Corn1 => (4, 5),
         TileType.Corn2 => (4, 4),
         TileType.CornRipe => (4, 3),
-        TileType.Corn => (4, 1),
+        TileType.Corn => (4, 2),
         _ => (0, 0)
     };
 }
