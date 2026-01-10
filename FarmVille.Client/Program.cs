@@ -15,6 +15,6 @@ builder.Services.AddScoped<FarmService>();
 builder.Services.AddScoped<CropService>();
 builder.Services.AddSingleton<GameState>();
 builder.Services.AddScoped<SnackbarService>();
-builder.Services.AddSingleton<GameService>();
+//builder.Services.AddSingleton<GameService>();
 
 await builder.Build().RunAsync();
