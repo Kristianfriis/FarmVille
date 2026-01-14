@@ -1,0 +1,208 @@
+.farm-viewport {
+    width: 100vw;
+    height: 100vh; /* Adjust based on your HUD/Toolbar height */
+    overflow: hidden;
+    position: relative;
+    background: #3e2723; /* Darker dirt color for the background */
+    cursor: grab;
+    touch-action: none !important; /* Critical for mobile dragging */
+    -webkit-touch-callout: none;
+    user-select: none;
+}
+
+.farm-viewport:active {
+    cursor: grabbing;
+}
+
+.farm-world {
+    position: absolute;
+    top: 0;
+    left: 0;
+    touch-action: none !important;
+}
+
+.farm-grid {
+    display: grid;
+    /*grid-template-columns: repeat(5, 80px);*/
+    /*gap: 4px;*/
+    width: 1280px; 
+    height: 1280px;
+    padding: 100px;
+    touch-action: none !important;
+}
+
+.tile {
+    width: 64px;
+    height: 64px;
+    background: #7cfc00;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    cursor: pointer;
+
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    z-index: 1;
+}
+
+.crop-layer {
+    position: absolute;
+    top: -24px; /* Adjust this value to set the height of the lift */
+    left: 0;
+    pointer-events: none; /* Clicks pass through to the tile below */
+    z-index: 2;
+}
+
+.tile {
+    position: relative; /* Essential for .crop-layer positioning */
+    width: 64px;
+    height: 64px;
+}
+
+.crop-layer:active {
+    filter: brightness(0.8);
+    /* transform: scale(0.95); */
+    transition: transform 0.05s;
+}
+
+.tile:active {
+    filter: brightness(0.8);
+    /* transform: scale(0.95); */
+    transition: transform 0.05s;
+}
+
+.tile:hover, 
+.tile:active, 
+.tile.highlighted {
+    z-index: 999 !important;
+        filter: brightness(0.8);
+    /* transform: scale(0.95); */
+    transition: transform 0.05s;
+}
+
+.crop-layer .tile:hover {
+    filter: brightness(0.8);
+    /* transform: scale(0.95); */
+    transition: transform 0.05s;
+}
+
+.tile.highlighted {
+    outline: 3px solid #ffd700;
+    outline-offset: -3px;
+     filter: brightness(1.4);
+}
+
+.tile.plowed {
+    background: #8b4513;
+}
+
+.tile.withered {
+    background: #4b3621;
+    filter: brightness(0.4);
+}
+
+
+.tile:hover .tile-tooltip {
+    display: block;
+}
+
+/* The Tree needs to be positioned relative to its bottom-left */
+.tree-overlay {
+    position: absolute;
+    pointer-events: none;
+    /* Let clicks pass through to the ground */
+    z-index: 10;
+}
+
+.shadow-layer {
+    position: absolute;
+    bottom: 4px; /* Sits at the bottom of the tile */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 32px; /* Slightly smaller than the tile */
+    height: 12px;
+    background: rgba(0, 0, 0, 0.3); /* Transparent black */
+    border-radius: 50%; /* Creates the oval shape */
+    z-index: 1;
+    pointer-events: none;
+}
+
+.ready .crop-layer {
+    animation: ready-bounce 3s ease-in-out 0s infinite normal forwards;
+}
+
+@keyframes ready-bounce {
+	0%,
+	100% {
+		transform: rotate(0deg);
+		transform-origin: 50% 100%;
+	}
+
+	10% {
+		transform: rotate(2deg);
+	}
+
+	20%,
+	40%,
+	60% {
+		transform: rotate(-4deg);
+	}
+
+	30%,
+	50%,
+	70% {
+		transform: rotate(4deg);
+	}
+
+	80% {
+		transform: rotate(-2deg);
+	}
+
+	90% {
+		transform: rotate(2deg);
+	}
+}
+
+.working-tile {
+    filter: brightness(0.4);
+    filter: contrast(0.4);
+}
+
+.building-tile {
+    cursor: pointer;
+    overflow: visible !important; /* Allow the roof to stick out slightly */
+}
+
+.barn-visual {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: #a52a2a; /* Barn Red */
+    border: 3px solid #3e2723;
+    border-radius: 4px;
+    image-rendering: pixelated;
+}
+
+/* Add some pixel-art flair */
+.barn-doors {
+    position: absolute;
+    bottom: 0;
+    left: 20%;
+    width: 60%;
+    height: 40%;
+    background: #5d3a24;
+    border-top: 2px solid #000;
+}
+
+.building-label {
+    position: absolute;
+    bottom: -15px;
+    width: 100%;
+    text-align: center;
+    font-size: 0.7rem;
+    color: white;
+    text-shadow: 1px 1px 0 #000;
+    pointer-events: none;
+}

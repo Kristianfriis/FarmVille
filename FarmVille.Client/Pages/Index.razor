@@ -95,6 +95,7 @@
     private async Task NavigateToLastFarm()
     {
         Loading = true;
+        await Task.Delay(500);
         var lastSlot = await FarmService.LoadLastSaveFarm();
         if (lastSlot.HasValue)
         {

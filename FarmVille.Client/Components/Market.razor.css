@@ -1,0 +1,37 @@
+.market-item {
+    height: 64px;
+}
+
+
+.market-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 5px; /* Extra breathing room inside the body */
+}
+
+.market-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.2); /* Inset "slot" look */
+    border: 2px solid #5e3a24;
+    cursor: pointer;
+    transition: transform 0.1s;
+}
+
+.market-item:active {
+    background: rgba(255, 255, 255, 0.1);
+    transform: scale(0.98);
+}
+
+.market-item .icon-wrapper {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #5e3a24; /* Background for the seed bag */
+    border: 2px solid #8b4513;
+}

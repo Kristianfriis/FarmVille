@@ -22,6 +22,7 @@
 
     private void HandleShow(string message, SnackbarType type)
     {
+        Console.WriteLine("Showing snackbar: " + message);
         currentMessage = message;
         currentType = type;
         isVisible = true;

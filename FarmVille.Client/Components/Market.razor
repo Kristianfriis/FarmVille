@@ -1,0 +1,58 @@
+﻿@inject CropService CropService
+@inject MarketService MarketService
+
+@implements IDisposable
+
+<GameModal Visible="ShowMarket" Title="SEED MARKET" OnClose="ToggleMarket">
+    <ChildContent>
+        <div class="market-grid">
+            @foreach (var crop in CropService.GetAllCrops())
+            {
+                <div class="market-item" @onclick="() => ChooseCrop(crop)">
+                    <Tile Type="crop.SeedType" />
+                    <span>@crop.Name (@crop.Cost 💰)</span>
+                </div>
+            }
+        </div>
+    </ChildContent>
+
+    <FooterContent>
+        <Button Type="ButtonType.Danger" OnClick="ToggleMarket">
+            NEVERMIND
+        </Button>
+    </FooterContent>
+</GameModal>
+
+@code {
+    private bool ShowMarket = false;
+
+    protected override void OnInitialized()
+    {
+        MarketService.OnToggle += ToggleMarket;
+    }
+
+    public void Dispose()
+    {
+        MarketService.OnToggle -= ToggleMarket;
+    }
+
+    private void ToggleMarket()
+    {
+        if(ShowMarket)
+        {
+            MarketService.CloseMarket();
+            ShowMarket = false;
+        } 
+        else 
+        {
+            ShowMarket = true;
+        }
+        StateHasChanged();
+    }
+
+    private void ChooseCrop(Crop crop)
+    {
+        MarketService.ChooseCrop(crop);
+        ShowMarket = false;
+    }
+}

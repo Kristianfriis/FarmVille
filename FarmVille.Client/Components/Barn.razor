@@ -2,6 +2,7 @@
 @inject GameState GameState
 @inject SnackbarService Snackbar
 @inject CropService CropService
+@inject BarnService BarnService
 
 <div class="barn-sidebar @(IsOpen ? "open" : "")">
     <div class="barn-container woody-panel">
@@ -49,6 +50,7 @@
 
     protected override void OnInitialized()
     {
+        BarnService.OnToggle += ToggleBarn;
         GameState.PlayerInventory.OnCropChange += StateHasChanged;
         GameState.OnGameLoaded += StateHasChanged;
     }
@@ -57,6 +59,7 @@
     {
         GameState.PlayerInventory.OnCropChange -= StateHasChanged;
         GameState.OnGameLoaded -= StateHasChanged;
+        BarnService.OnToggle -= ToggleBarn;
     }
 
     public void ToggleBarn()
@@ -78,6 +81,7 @@
         if (GameState.PlayerInventory.Crops[cropName] <= 0) GameState.PlayerInventory.Crops.Remove(cropName);
 
         OnCropSell.InvokeAsync();
+        BarnService.CropSold();
 
         GameState.PlayerInventory.AddCoins(totalGold);
 
