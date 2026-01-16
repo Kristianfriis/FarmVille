@@ -1,4 +1,6 @@
-﻿<div class="toolbar">
+﻿@inject ToolbarService ToolbarService
+
+<div class="toolbar">
     <button class="@(CurrentTool == FarmTool.Pointer ? "active" : "")" @onclick="() => ChangeTool(FarmTool.Pointer)">👆</button>
 
     <button class="@(CurrentTool == FarmTool.Plow ? "active" : "")" @onclick="() => ChangeTool(FarmTool.Plow)">🚜</button>
@@ -14,6 +16,7 @@
     {
         if (tool != CurrentTool)
         {
+            ToolbarService.ChooseTool(tool);
             CurrentTool = tool;
             await OnToolChange.InvokeAsync(tool);
         }

@@ -1,0 +1,196 @@
+﻿@page "/testfarm"
+@inject FarmEngine FarmEngine
+@inject IJSRuntime JSRuntime
+@implements IAsyncDisposable
+
+<GameHud FarmId="FarmId" XP="XP" />
+
+<div id="farm-viewport" class="farm-viewport">
+
+    <div class="farm-world" style="transform: translate3d(@(OffsetX)px, @(OffsetY)px, 0px);">
+        <div class="farm-grid" style="grid-template-columns: repeat(20, 64px);">
+            @foreach (var tile in FarmEngine.FarmGrid)
+            {
+                <div class="tile @tile.Status.ToString().ToLower() @(MarkSelectedTile(tile)) @(IsWorkingOnTile(tile)) cell"
+                    style="grid-column: @(tile.X + 1); grid-row: @(tile.Y + 1); z-index: @(tile.Y);"
+                    @onclick="() => FarmEngine.HandleTileInteraction(tile)" @onclick:stopPropagation>
+
+                    @if (tile.BuildingType == "Barn")
+                    {
+                        <div class="barn-visual">
+                            <div class="barn-roof"></div>
+                            <div class="barn-doors"></div>
+                            <div class="barn-shadow"></div>
+                        </div>
+                        <div class="building-label">THE BARN</div>
+                    }
+                    else
+                    {
+                        @* LAYER 1: The Ground *@
+                        @if (tile.Status == TileStatus.Grass)
+                        {
+                            <Tile Type="TileType.Grass" />
+                        }
+                        else
+                        {
+                            <Tile Type="TileType.TilledSoil" />
+                        }
+
+                        @if (tile.CurrentAction != TileAction.None)
+                        {
+                            <ToolTip>
+                                @tile.CurrentAction.ToString().ToUpper() for @(tile.GetActionRemainingTime())
+                            </ToolTip>
+                        }
+
+                        @* LAYER 2: The Object/Crop (Shifted Up) *@
+                        <div class="crop-layer">
+                            @if (tile.Status == TileStatus.Planted)
+                            {
+                                <Tile Type="tile.CurrentCrop!.Stage1Type" />
+                                @* <div class="tile-tooltip">@tile.CurrentCrop!.Name</div> *@
+                            }
+                            else if (tile.Status == TileStatus.Ready)
+                            {
+                                <Tile Type="tile.CurrentCrop!.ReadyType" />
+                                <ToolTip>Ready</ToolTip>
+                            }
+                            else if (tile.Status == TileStatus.Withered)
+                            {
+                                <Tile Type="tile.CurrentCrop!.Stage1Type" />
+                                <ToolTip>Withered</ToolTip>
+                            }
+                            @* Add other overlays like Chickens or Trees here *@
+                        </div>
+
+                        @* LAYER 3: UI/Tooltips *@
+                        @if (tile.Status == TileStatus.Planted)
+                        {
+                            <ToolTip>@tile.CurrentCrop!.Name @tile.GetTimeRemaining()</ToolTip>
+                        }
+                    }
+
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@* <GameAlert IsVisible="showAlert" Message="@alertMessage"
+    OnClose="() => {showAlert = false; alertMessage = string.Empty;}" /> *@
+
+<Barn />
+<Market />
+<Toolbar />
+
+@code {
+    int FarmId = 10;
+    private int XP = 0;
+    private double BaseX = 0; // Store the position where the drag started
+    private double BaseY = 0;
+    private double OffsetX = 0;
+    private double OffsetY = 0;
+    private DotNetObjectReference<TestFarm>? _dotNetRef;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await FarmEngine.InitializeAsync(FarmId);
+
+        FarmEngine.OnStateChanged += StateHasChanged;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+            return;
+
+        _dotNetRef = DotNetObjectReference.Create(this);
+
+        await JSRuntime.InvokeVoidAsync("initFarmPan", _dotNetRef, "farm-viewport");
+    }
+
+    private async Task ShowBarn()
+    {
+        var barnTile = FarmEngine.FarmGrid.First(t => t.BuildingType == "Barn");
+
+        await FarmEngine.HandleTileInteraction(barnTile);
+    }
+
+    private void SetTool()
+    {
+        FarmEngine.SetCurrentTool(FarmTool.Plow);
+    }
+
+    private async Task ShowMarket()
+    {
+        var someTile = FarmEngine.FarmGrid.First();
+        someTile.Status = TileStatus.Plowed;
+
+        await FarmEngine.HandleTileInteraction(someTile);
+    }
+
+    private string MarkSelectedTile(FarmTile tile) =>
+    tile == FarmEngine.SelectedTile ? "highlighted" : "";
+
+    private string IsWorkingOnTile(FarmTile tile) =>
+    tile.CurrentAction != TileAction.None ? "working-tile" : "";
+
+    [JSInvokable]
+    public void OnPanStart()
+    {
+        // Remember where we were when the drag started
+        BaseX = OffsetX;
+        BaseY = OffsetY;
+    }
+
+    [JSInvokable]
+    public void OnPanMove(double deltaX, double deltaY)
+    {
+        OffsetX = BaseX + deltaX;
+        OffsetY = BaseY + deltaY;
+
+        ApplyBounds();
+        StateHasChanged();
+    }
+
+    private void ApplyBounds()
+    {
+        // The size of your farm (20 tiles * 64px)
+        // If you added padding in CSS, include it here
+        double farmWidth = 1280;
+        double farmHeight = 1280;
+
+        // Get the current window size (you can also hardcode or use JS Interop)
+        // For now, let's assume a standard "buffer"
+        // We want to prevent the Offset from going too far positive (pushing farm right/down)
+        // or too far negative (pushing farm left/up)
+
+        double minX = -(farmWidth - 200); // Allow 200px to stay on screen
+        double maxX = 200;
+
+        double minY = -(farmHeight - 200);
+        double maxY = 200;
+
+        OffsetX = Math.Clamp(OffsetX, minX, maxX);
+        OffsetY = Math.Clamp(OffsetY, minY, maxY);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        try
+        {
+            await JSRuntime.InvokeVoidAsync(
+                                    "disposeFarmPan",
+                                    "farm-viewport"
+            );
+        }
+        catch
+        {
+            // JS runtime may already be gone during shutdown
+        }
+
+        _dotNetRef?.Dispose();
+
+        FarmEngine.OnStateChanged -= StateHasChanged;
+    }
+}
